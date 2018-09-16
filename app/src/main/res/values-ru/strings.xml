@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CryptoWidget</string>
+    <string name="widget_name">Crypto Widget</string>
+    <string name="widget_text">Text in widget</string>
+    <string name="t_price">Price</string>
+    <string name="t_change">Change</string>
+    <string name="t_update">Update</string>
+    <string name="radio_color">Фон</string>
+    <string name="t_updtime">Время обновления (мин)</string>
+    <string name="notice_tupd">Частое обновление повышает разряд батареи</string>
+    <string name="notice_internet">Отсутствует интернет-подключение</string>
+    <string name="notice_name">Введите название валюты!</string>
+     <string name="btn_ok">OK</string>
+    <string name="t_a">"Alpha: "</string>
+    <string name="t_r">Red:\u0020\u0020\u0020\u0020</string>
+    <string name="t_g">Green:</string>
+    <string name="t_b">Blue:\u0020\u0020\u0020</string>
+    <string name="hint_crInput">Enter the name</string>
+    <string name="notice_failed">Не удалось получить данные</string>
+    <string name="notice_error">Неизвестная ошибка</string>
+    <string name="notice_fail_conn_1">Таймаут соединения. Попытка переподключения...</string>
+    <string name="notice_fail_conn_2">Не удалось подключиться к удаленному хосту. Сообщите разработчкику.</string>
+</resources>

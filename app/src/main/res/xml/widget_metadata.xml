@@ -1,0 +1,11 @@
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="net.ucoz.softoad.cryptowidget.ConfigActivity"
+    android:initialLayout="@layout/widget"
+    android:previewImage="@drawable/preview_small"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen|keyguard"
+    android:minHeight="40dp"
+    android:minWidth="250dp"
+    android:updatePeriodMillis="0">
+</appwidget-provider>
