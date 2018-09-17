@@ -2,6 +2,7 @@ package net.ucoz.softoad.cryptowidget_2;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -11,14 +12,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by Пендальф Синий on 12.04.2018.
@@ -58,6 +71,9 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
     private LinearLayout rl2;
     private LinearLayout rl3;
     private LinearLayout rl4;
+
+    private Spinner spinner1;
+    private Spinner spinner2;
 
     private  FrameLayout frameLayout;
 
@@ -149,32 +165,70 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         valueTime = sp.getInt(ConfigActivity.PREF_TIME, 5);
         valTime.setText(String.valueOf(valueTime));
 
+        spinner1 = findViewById(R.id.spinner1);
+        spinner2 = findViewById(R.id.spinner2);
+
+        String[] dataAdapter = getListPrices();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, dataAdapter);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner1.setAdapter(arrayAdapter);
+        spinner2.setAdapter(arrayAdapter);
+
+
     }
+
+    private String[] getListPrices(){
+        List<String> list = new ArrayList<>(49);
+        Properties prop = new Properties();
+        try {
+            InputStream inputStream = getApplicationContext().getResources().getAssets().open("prices");
+            prop.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (Map.Entry entry :
+                prop.entrySet()) {
+            list.add(entry.getKey().toString());
+        }
+        return list.toArray(new String[0]);
+
+
+    }
+
 
 
     public void onClick(View v) {
 
-        String nameOfCrypt = input.getText().toString();
-        if (nameOfCrypt.equals("")) {
-            Toast.makeText(this,R.string.notice_name, Toast.LENGTH_LONG).show();
-            return;
+        try {
+
+            String nameOfCrypt = input.getText().toString();
+            if (nameOfCrypt.equals("")) {
+                Toast.makeText(this, R.string.notice_name, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Записываем значения с экрана в Preferences
+            SharedPreferences sp = getSharedPreferences(WIDGET_PREF, MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(PREF_NAME + widgetID, nameOfCrypt);
+            editor.putInt(PREF_COLOR + widgetID, backgroundColor);
+            editor.putInt(PREF_TIME, valueTime);
+
+            editor.putString("cur1", spinner1.getSelectedItem().toString());
+            editor.putString("cur2", spinner2.getSelectedItem().toString());
+            editor.apply();
+
+            System.out.println("valueTime" + valueTime);
+
+            // положительный ответ
+            setResult(RESULT_OK, resultValue);
+
+            Log.d(LOG_TAG, "finish config " + widgetID);
+            finish();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        // Записываем значения с экрана в Preferences
-        SharedPreferences sp = getSharedPreferences(WIDGET_PREF, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(PREF_NAME + widgetID, nameOfCrypt);
-        editor.putInt(PREF_COLOR + widgetID, backgroundColor);
-        editor.putInt(PREF_TIME, valueTime);
-        editor.apply();
-
-        System.out.println("valueTime" + valueTime);
-
-        // положительный ответ
-        setResult(RESULT_OK, resultValue);
-
-        Log.d(LOG_TAG, "finish config " + widgetID);
-        finish();
     }
 
     @Override
@@ -184,11 +238,9 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         if (!isChecked) {
             lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
             lp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            System.out.println("Сужение");
         }else {
             lp1 = lpFrame;
             lp2 = lpRelative;
-            System.out.println("Расширение");
         }
 
         frameLayout.setLayoutParams(lp1);
