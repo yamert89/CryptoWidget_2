@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ucoz.softoad.cryptowidget_2">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -20,7 +22,13 @@
             </intent-filter>
             <intent-filter>
                 <action
-                    android:name="net.ucoz.softoad.cryptowidget.FORCE_WIDGET_UPDATE"
+                    android:name="net.ucoz.softoad.cryptowidget.ALL_WIDGET_UPDATE"
+                    android:priority="100">
+                </action>
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="net.ucoz.softoad.cryptowidget.DYNAMIC_WIDGET_UPDATE"
                     android:priority="100">
                 </action>
             </intent-filter>

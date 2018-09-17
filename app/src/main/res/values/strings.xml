@@ -3,7 +3,7 @@
     <string name="widget_name">Crypto Widget</string>
     <string name="widget_text">Text in widget</string>
     <string name="t_price">Price</string>
-    <string name="t_change">Change</string>
+    <string name="t_change">24h</string>
     <string name="t_update">Update</string>
     <string name="hint_crInput">Enter the name</string>
     <string name="radio_color">Background</string>
@@ -21,4 +21,6 @@
     <string name="t_r">Red:\u0020\u0020\u0020\u0020</string>
     <string name="t_g">Green:</string>
     <string name="t_b">Blue:\u0020\u0020\u0020</string>
+    <string name="currency1">Currency 1</string>
+    <string name="currency2">Currency 2</string>
 </resources>

@@ -9,8 +9,16 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Пендальф Синий on 14.04.2018.
@@ -91,16 +99,46 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         try {
             list = new ArrayList<>();
             for (String name :
-                    Widget.listOfCrypt.keySet()) {
+                    getListCurrencies()) {
                 if (name.toLowerCase().startsWith(s.toLowerCase())) list.add(name);
             }
             System.out.println("findCurrencies");
         }catch (NullPointerException e){
-            Widget.parserLinksExec();
-            return findCurrencies(s);
+
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
         }
 
         return list;
+    }
+
+    private Set<String> getListCurrencies() throws IOException { //TODO  сохранить а уже потом брать
+        Set<String> set = new HashSet<>(2000);
+        InputStream inputStream = null;
+        try {
+            inputStream = mContext.getResources().getAssets().open("list_currencies.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader reader = null;
+        try {
+            reader = new InputStreamReader(inputStream, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        StringBuilder builder = new StringBuilder();
+        while (reader.ready()){
+            builder.append(reader.read());
+        }
+
+        /*JsonObject element = new JsonParser().parse(new InputStreamReader(inputStream)).getAsJsonObject();
+        for (Map.Entry<String, JsonElement> el :
+                element.entrySet()) {
+            set.add(el.getValue().getAsJsonObject().get("name").getAsString());
+        }*/
+        Object[] array = new Gson().fromJson(builder.toString(), Object[].class);
+        return set;
     }
 
 

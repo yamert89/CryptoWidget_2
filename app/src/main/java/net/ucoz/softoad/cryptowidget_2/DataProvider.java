@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -19,10 +19,11 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
 
     @Override
     protected Object[] doInBackground(String... strings) {
-        return getCurrencyData(strings[0]);
+        
+        return getCurrencyData(strings[0], strings[1], strings[2]);
     }
 
-    private Object[] getCurrencyData(String name){
+    private Object[] getCurrencyData(String name, String cur1, String cur2){
         String price1 = null;
         String price2 = null;
         String change1_24h = null;
@@ -50,29 +51,29 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
             e.printStackTrace();
         }
         String json = response.body();
-        JsonElement element = new com.google.gson.JsonParser().parse(json);
+        JsonElement element = new JsonParser().parse(json);
 
         JsonObject market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
         JsonObject current_price = market_data.get("current_price").getAsJsonObject();
 
-        price1 = current_price.get("btc").getAsString();
-        price2 = current_price.get("usd").getAsString();
-        change1_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("usd").getAsString();
+        price1 = current_price.get(cur2).getAsString();
+        price2 = current_price.get(cur1).getAsString();
+        change1_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get(cur1).getAsString();
+        change1_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get(cur2).getAsString();
+        change2_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get(cur1).getAsString();
         String ico_url = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
         Bitmap image = loadBitmap(ico_url);
         int counter = 4;

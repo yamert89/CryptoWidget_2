@@ -2,7 +2,6 @@ package net.ucoz.softoad.cryptowidget_2;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -23,9 +22,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -170,9 +166,11 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
         String[] dataAdapter = getListPrices();
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, dataAdapter);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        arrayAdapter.setDropDownViewResource(R.layout.custom_drop_down);
         spinner1.setAdapter(arrayAdapter);
+        spinner1.setSelection(43);
         spinner2.setAdapter(arrayAdapter);
+        spinner2.setSelection(8);
 
 
     }

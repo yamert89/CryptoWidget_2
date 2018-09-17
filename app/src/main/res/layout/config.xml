@@ -23,7 +23,9 @@
             android:id="@+id/spinner1"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:prompt="@string/currency1"
+            />
 
         <TextView
             android:id="@+id/divider"
@@ -31,7 +33,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:textAlignment="center"
-            android:text="Сравниваемые валюты"
+            android:text="@string/app_name"
             android:textSize="13sp"/>
 
 
@@ -40,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:prompt="Валюта1"/>
+            android:prompt="@string/currency2"/>
     </LinearLayout>
 
 
