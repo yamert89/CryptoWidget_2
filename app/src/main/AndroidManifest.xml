@@ -7,5 +7,35 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" />
+        android:theme="@style/AppTheme">
+        <receiver
+            android:name="net.ucoz.softoad.cryptowidget_2.Widget"
+            android:icon="@drawable/ico"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action
+                    android:name="android.appwidget.action.APPWIDGET_UPDATE"
+                    android:priority="100">
+                </action>
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="net.ucoz.softoad.cryptowidget.FORCE_WIDGET_UPDATE"
+                    android:priority="100">
+                </action>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_metadata">
+            </meta-data>
+        </receiver>
+        <activity android:name=".ConfigActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action
+                    android:name="android.appwidget.action.APPWIDGET_CONFIGURE">
+                </action>
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>

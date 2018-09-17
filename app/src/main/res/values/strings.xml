@@ -1,3 +1,24 @@
 <resources>
-    <string name="app_name">CryptoWidget_2</string>
+    <string name="app_name">CryptoWidget</string>
+    <string name="widget_name">Crypto Widget</string>
+    <string name="widget_text">Text in widget</string>
+    <string name="t_price">Price</string>
+    <string name="t_change">Change</string>
+    <string name="t_update">Update</string>
+    <string name="hint_crInput">Enter the name</string>
+    <string name="radio_color">Background</string>
+    <string name="t_updtime">Update frequency (minutes)</string>
+    <string name="notice_tupd">Frequent updates increase battery discharge</string>
+    <string name="notice_internet">No internet connection available</string>
+    <string name="notice_fail_conn_1">Connection timeout. Trying to reconnect ...</string>
+    <string name="notice_fail_conn_2">Could not connect to the remote host. Inform the development team.</string>
+    <string name="notice_name">Enter the name of the currency!</string>
+    <string name="notice_failed">Failed to retrieve data</string>
+    <string name="notice_error">Unknown error</string>
+    <string name="notice_timeout">Response time exceeded</string>
+    <string name="btn_ok">OK</string>
+    <string name="t_a">Alpha:\u0020</string>
+    <string name="t_r">Red:\u0020\u0020\u0020\u0020</string>
+    <string name="t_g">Green:</string>
+    <string name="t_b">Blue:\u0020\u0020\u0020</string>
 </resources>

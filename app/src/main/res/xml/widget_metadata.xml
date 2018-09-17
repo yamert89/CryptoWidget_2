@@ -1,6 +1,6 @@
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="net.ucoz.softoad.cryptowidget.ConfigActivity"
+    android:configure="net.ucoz.softoad.cryptowidget_2.ConfigActivity"
     android:initialLayout="@layout/widget"
     android:previewImage="@drawable/preview_small"
     android:resizeMode="horizontal|vertical"
