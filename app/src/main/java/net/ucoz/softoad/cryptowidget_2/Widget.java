@@ -27,10 +27,13 @@ public class Widget extends AppWidgetProvider {
     AlarmManager am;
     SparseArray<Object[]> dataMap = new SparseArray<>();
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         System.out.println("ACTION______________!!!" + intent.getAction());
+        System.out.println("THIS = " + this.hashCode());
+        System.out.println("CONTEXT = " + context.hashCode());
         if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && am == null) return;
         if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
                 intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
@@ -74,6 +77,7 @@ public class Widget extends AppWidgetProvider {
             updateWidget(mAppWidgetId, context, false, appWidgetManager);
             return;
         }
+        SparseArray dataMap = getResultExtras(true).getSparseParcelableArray("datamap");
         if (dataMap != null) dataMap.remove(mAppWidgetId);
 
         getData(mAppWidgetId, nameCurrency, cur1, cur2);
@@ -104,6 +108,10 @@ public class Widget extends AppWidgetProvider {
         super.onEnabled(context);
 
 
+
+
+
+
     }
 
     @Override
@@ -118,14 +126,19 @@ public class Widget extends AppWidgetProvider {
     }
 
     private void updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
+
         System.out.println("UPDATE WIDGET - " + id);
-        System.out.println("DATAMAP SIZE " + dataMap.size());
+
         System.out.println("DATAMAP:  " + dataMap.hashCode());
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        Object[] data = dataMap.get(id);
+
+
+
         if (full) {
+            Object[] data = dataMap.get(id);
+
             if (data[0] != null) views.setImageViewBitmap(R.id.ico, (Bitmap) data[1]);
             views.setTextViewText(R.id.tv_name, (String) data[0]);
             views.setTextViewText(R.id.tv_priceDol,(String) data[2]);
@@ -135,44 +148,60 @@ public class Widget extends AppWidgetProvider {
 
             int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
             views.setInt(R.id.general, "setBackgroundColor", color);
+            System.out.println("DATA SAVE" + data.length);
 
-            /*if (((String) data[0]).length() > 20)
-                views.setViewVisibility(R.id.tv_change, View.INVISIBLE);
-            if (((String) data[0]).length() > 14)
-                views.setViewVisibility(R.id.tv_price, View.INVISIBLE);*/
+           saveChangeData(data, sp);
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
         }else {
-            System.out.println("DATA 18 = " + data[18]);
-            int idx = (int) data[18];
-            views.setTextViewText(R.id.tv_dyn_Dol,(String) data[idx]);
-            views.setTextViewText(R.id.tv_dyn_BTC,(String) data[++idx]);
+            Object[] data2 = getChangeData(sp);
+            int idx = (int) data2[14];
+            System.out.println("IDX_________________! : " + idx);
             String header = "";
-            switch (idx){
-                case 4:
+            for (Object ob :
+                    data2) {
+                System.out.println(ob);
+            }
+            switch (idx) {
+                case 0:
                     header = "24h";
                     break;
-                case 6:
+                case 2:
                     header = "7d";
                     break;
-                case 8:
+                case 4:
                     header = "14d";
                     break;
-                case 10:
+                case 6:
                     header = "30d";
                     break;
-                case 12:
+                case 8:
                     header = "60d";
                     break;
-                case 14:
+                case 10:
                     header = "200d";
                     break;
-                case 16:
+                case 12:
                     header = "1y";
                     break;
+                default:
+                    header = "?";
+                    break;
             }
+
+
+            System.out.println("DATA GET  = " + data2.length);
+
+            views.setTextViewText(R.id.tv_dyn_Dol,(String) data2[idx]);
+            views.setTextViewText(R.id.tv_dyn_BTC,(String) data2[++idx]);
+
+
             views.setTextViewText(R.id.tv_change, header);
-            data[20] = idx++;
+            if (idx < 13) sp.edit().putInt("change_counter", ++idx).apply();
+            else sp.edit().putInt("change_counter", 0).apply();
+
+
+
         }
 
         //onClick
@@ -187,6 +216,8 @@ public class Widget extends AppWidgetProvider {
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
         views.setOnClickPendingIntent(R.id.tv_change, pIntent);
+        views.setOnClickPendingIntent(R.id.tv_dyn_Dol, pIntent);
+        views.setOnClickPendingIntent(R.id.tv_dyn_BTC, pIntent);
 
 
 
@@ -195,12 +226,50 @@ public class Widget extends AppWidgetProvider {
 
     }
 
+    private void saveChangeData(Object[] data, SharedPreferences sp){
+        SharedPreferences.Editor editor = sp.edit();
+        for (int i = 4; i < 18; i++) {
+            editor.putString("change" + i, (String) data[i]);
+        }
+        editor.putInt("change_counter", (int) data[18]);
+        editor.apply();
+    }
+
+    private Object[] getChangeData(SharedPreferences sp){
+        try {
+            String change1_24h = sp.getString("change4", null);
+            String change2_24h = sp.getString("change5", null);
+            String change1_7d = sp.getString("change6", null);
+            String change2_7d = sp.getString("change7", null);
+            String change1_14d = sp.getString("change8", null);
+            String change2_14d = sp.getString("change9", null);
+            String change1_30d = sp.getString("change10", null);
+            String change2_30d = sp.getString("change11", null);
+            String change1_60d = sp.getString("change12", null);
+            String change2_60d = sp.getString("change13", null);
+            String change1_200d = sp.getString("change14", null);
+            String change2_200d = sp.getString("change15", null);
+            String change1_1y = sp.getString("change16", null);
+            String change2_1y = sp.getString("change17", null);
+            int counter = sp.getInt("change_counter", 0);
+
+            return new Object[]{change1_24h, change2_24h, change1_7d, change2_7d, change1_14d, change2_14d,
+                    change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y, counter};
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private void getData(int id, String s, String cur1, String cur2){
         DataProvider provider = new DataProvider();
         provider.execute(s, cur1, cur2);
         try {
+
             Object[] d = provider.get();
             dataMap.put(id, d);
+
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

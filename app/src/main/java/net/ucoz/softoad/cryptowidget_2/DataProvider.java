@@ -64,8 +64,15 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
             market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
             JsonObject current_price = market_data.get("current_price").getAsJsonObject();
 
-            price1 = current_price.get(cur1).getAsString() + " " + cur1;
-            price2 = current_price.get(cur2).getAsString() + " " + cur2;
+            price1 = current_price.get(cur1).getAsString();
+            price2 = current_price.get(cur2).getAsString();
+
+            if (price1.length() > 16) price1 = price1.substring(0,15);
+            if (price2.length() > 16) price2 = price2.substring(0,15);
+
+            price1 += " " + cur1;
+            price2 += " " + cur2;
+
             change1_24h = getChangePrepared("price_change_percentage_24h_in_currency", cur1);
             change2_24h = getChangePrepared("price_change_percentage_24h_in_currency", cur2);
             change1_7d =  getChangePrepared("price_change_percentage_7d_in_currency", cur1);
@@ -82,7 +89,7 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
             change2_1y = getChangePrepared("price_change_percentage_1y_in_currency", cur2);
             String ico_url = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
             Bitmap image = loadBitmap(ico_url);
-            int counter = 4;
+            int counter = 0;
 
 
 
@@ -99,8 +106,14 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
     }
 
     private String getChangePrepared(String param, String cur){
-        String s = market_data.get(param).getAsJsonObject().get(cur).getAsString();
-        if (s.length() > 5)s = s.substring(0,5);
+        String s = null;
+        try {
+            s = market_data.get(param).getAsJsonObject().get(cur).getAsString();
+            if (s.length() > 5) s = s.substring(0, 5);
+        }catch (NullPointerException e){
+            System.out.println("!!!!!!!!!!!!String = " + s);
+            return "?";
+        }
         return s + "%";
     }
 

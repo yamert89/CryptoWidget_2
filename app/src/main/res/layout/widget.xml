@@ -30,7 +30,7 @@
         android:id="@+id/tv_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/tv_change"
+        android:layout_toLeftOf="@id/tv_dyn_Dol"
         android:layout_marginBottom="@dimen/margin"
         android:layout_marginRight="@dimen/margin_element"
         android:textColor="@color/color_def"
@@ -76,7 +76,7 @@
         android:layout_marginRight="@dimen/margin_element"
         android:layout_marginBottom="@dimen/margin"
         android:layout_below="@+id/tv_price"
-        android:layout_toLeftOf="@+id/tv_change"
+        android:layout_toLeftOf="@+id/tv_dyn_Dol"
         android:text=""
         android:textColor="@color/color_price"
         android:textSize="@dimen/text_size"/>
@@ -87,7 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/margin_element"
         android:layout_below="@+id/tv_priceDol"
-        android:layout_toLeftOf="@id/tv_change"
+        android:layout_toLeftOf="@id/tv_dyn_Dol"
         android:text=""
         android:textColor="@color/color_price"
         android:textSize="@dimen/text_size"/>
@@ -101,7 +101,8 @@
         android:layout_below="@+id/tv_change"
         android:text=""
         android:textColor="@color/color_dyn"
-        android:textSize="@dimen/text_size"/>
+        android:textSize="@dimen/text_size"
+        android:minWidth="25dp"/>
 
     <TextView
         android:id="@+id/tv_dyn_BTC"
@@ -111,5 +112,6 @@
         android:layout_below="@+id/tv_dyn_Dol"
         android:text=""
         android:textColor="@color/color_dyn"
-        android:textSize="@dimen/text_size"/>
+        android:textSize="@dimen/text_size"
+        android:minWidth="25dp"/>
 </RelativeLayout>
