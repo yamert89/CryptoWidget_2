@@ -31,10 +31,10 @@ public class Widget extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         System.out.println("ACTION______________!!!" + intent.getAction());
+        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && am == null) return;
         if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
                 intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
-                        intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED) ||
-                                intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) return;
+                        intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED)) return;
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
@@ -58,12 +58,10 @@ public class Widget extends AppWidgetProvider {
         int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            mAppWidgetId = extras.getInt(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
         }
-        dataMap.remove(mAppWidgetId);
+
         nameCurrency = sp.getString(PREF_NAME + mAppWidgetId, "undefined");
 
         if(intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)){
@@ -74,9 +72,15 @@ public class Widget extends AppWidgetProvider {
 
         if (intent.getAction().equals(DYNAMIC_WIDGET_UPDATE)){
             updateWidget(mAppWidgetId, context, false, appWidgetManager);
+            return;
         }
+        if (dataMap != null) dataMap.remove(mAppWidgetId);
+
         getData(mAppWidgetId, nameCurrency, cur1, cur2);
         updateWidget(mAppWidgetId, context, true, appWidgetManager);
+
+
+
 
 
 
@@ -91,6 +95,7 @@ public class Widget extends AppWidgetProvider {
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
+        if (am != null) am.cancel(pendingIntent);
         super.onDeleted(context, appWidgetIds);
     }
 
@@ -103,6 +108,7 @@ public class Widget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
+        if (am != null) am.cancel(pendingIntent);
         super.onDisabled(context);
     }
 
@@ -112,6 +118,9 @@ public class Widget extends AppWidgetProvider {
     }
 
     private void updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
+        System.out.println("UPDATE WIDGET - " + id);
+        System.out.println("DATAMAP SIZE " + dataMap.size());
+        System.out.println("DATAMAP:  " + dataMap.hashCode());
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
@@ -127,14 +136,15 @@ public class Widget extends AppWidgetProvider {
             int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
             views.setInt(R.id.general, "setBackgroundColor", color);
 
-            if (((String) data[0]).length() > 20)
+            /*if (((String) data[0]).length() > 20)
                 views.setViewVisibility(R.id.tv_change, View.INVISIBLE);
             if (((String) data[0]).length() > 14)
-                views.setViewVisibility(R.id.tv_price, View.INVISIBLE);
+                views.setViewVisibility(R.id.tv_price, View.INVISIBLE);*/
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
         }else {
-            int idx = (int) data[20];
+            System.out.println("DATA 18 = " + data[18]);
+            int idx = (int) data[18];
             views.setTextViewText(R.id.tv_dyn_Dol,(String) data[idx]);
             views.setTextViewText(R.id.tv_dyn_BTC,(String) data[++idx]);
             String header = "";
@@ -143,30 +153,43 @@ public class Widget extends AppWidgetProvider {
                     header = "24h";
                     break;
                 case 6:
-                    header = "1d";
-                    break;
-                case 8:
                     header = "7d";
                     break;
-                case 10:
+                case 8:
                     header = "14d";
                     break;
-                case 12:
+                case 10:
                     header = "30d";
                     break;
-                case 14:
+                case 12:
                     header = "60d";
                     break;
-                case 16:
+                case 14:
                     header = "200d";
                     break;
-                case 18:
+                case 16:
                     header = "1y";
                     break;
             }
             views.setTextViewText(R.id.tv_change, header);
             data[20] = idx++;
         }
+
+        //onClick
+        Intent updateIntent = new Intent(context, Widget.class);
+        updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+        PendingIntent pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
+        views.setOnClickPendingIntent(R.id.button, pIntent);
+
+        updateIntent = new Intent(context, Widget.class);
+        updateIntent.setAction(DYNAMIC_WIDGET_UPDATE);
+        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+        pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
+        views.setOnClickPendingIntent(R.id.tv_change, pIntent);
+
+
+
         appWidgetManager.updateAppWidget(id, views);
 
 

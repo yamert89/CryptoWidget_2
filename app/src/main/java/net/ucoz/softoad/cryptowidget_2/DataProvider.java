@@ -15,12 +15,19 @@ import java.io.IOException;
 import java.net.URL;
 
 public class DataProvider extends AsyncTask<String, Void, Object[]> {
+    private String name;
+    private String cur1;
+    private String cur2;
+    private JsonObject market_data;
 
 
     @Override
     protected Object[] doInBackground(String... strings) {
-        
-        return getCurrencyData(strings[0], strings[1], strings[2]);
+        name = strings[0];
+        cur1 = strings[1];
+        cur2 = strings[2];
+
+        return getCurrencyData(name, cur1, cur2);
     }
 
     private Object[] getCurrencyData(String name, String cur1, String cur2){
@@ -28,7 +35,6 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
         String price2 = null;
         String change1_24h = null;
         String change1_7d = null;
-        String change1_1d = null;
         String change1_14d = null;
         String change1_30d = null;
         String change1_60d = null;
@@ -37,50 +43,65 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
 
         String change2_24h = null;
         String change2_7d = null;
-        String change2_1d = null;
         String change2_14d = null;
         String change2_30d = null;
         String change2_60d = null;
         String change2_200d = null;
         String change2_1y = null;
 
-        Connection.Response response = null;
         try {
-            response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").ignoreContentType(true).execute();
-        } catch (IOException e) {
+            System.out.println("name = [" + name + "], cur1 = [" + cur1 + "], cur2 = [" + cur2 + "]");
+
+            Connection.Response response = null;
+            try {
+                response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").ignoreContentType(true).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String json = response.body();
+            JsonElement element = new JsonParser().parse(json);
+
+            market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
+            JsonObject current_price = market_data.get("current_price").getAsJsonObject();
+
+            price1 = current_price.get(cur1).getAsString() + " " + cur1;
+            price2 = current_price.get(cur2).getAsString() + " " + cur2;
+            change1_24h = getChangePrepared("price_change_percentage_24h_in_currency", cur1);
+            change2_24h = getChangePrepared("price_change_percentage_24h_in_currency", cur2);
+            change1_7d =  getChangePrepared("price_change_percentage_7d_in_currency", cur1);
+            change2_7d =  getChangePrepared("price_change_percentage_7d_in_currency", cur2);
+            change1_14d = getChangePrepared("price_change_percentage_14d_in_currency", cur1);
+            change2_14d = getChangePrepared("price_change_percentage_14d_in_currency", cur2);
+            change1_30d = getChangePrepared("price_change_percentage_30d_in_currency", cur1);
+            change2_30d = getChangePrepared("price_change_percentage_30d_in_currency", cur2);
+            change1_60d = getChangePrepared("price_change_percentage_60d_in_currency", cur1);
+            change2_60d = getChangePrepared("price_change_percentage_60d_in_currency", cur2);
+            change1_200d = getChangePrepared("price_change_percentage_200d_in_currency", cur1);
+            change2_200d = getChangePrepared("price_change_percentage_200d_in_currency", cur2);
+            change1_1y = getChangePrepared("price_change_percentage_1y_in_currency", cur1);
+            change2_1y = getChangePrepared("price_change_percentage_1y_in_currency", cur2);
+            String ico_url = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
+            Bitmap image = loadBitmap(ico_url);
+            int counter = 4;
+
+
+
+            return new Object[]{name, image, price1, price2, change1_24h, change2_24h, change1_7d, change2_7d,
+                    change1_14d, change2_14d, change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y, counter};
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        } catch (Exception e){
             e.printStackTrace();
         }
-        String json = response.body();
-        JsonElement element = new JsonParser().parse(json);
+        return null;
 
-        JsonObject market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
-        JsonObject current_price = market_data.get("current_price").getAsJsonObject();
+    }
 
-        price1 = current_price.get(cur2).getAsString();
-        price2 = current_price.get(cur1).getAsString();
-        change1_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_1d = market_data.get("price_change_percentage_1d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get(cur1).getAsString();
-        change1_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get(cur2).getAsString();
-        change2_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get(cur1).getAsString();
-        String ico_url = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
-        Bitmap image = loadBitmap(ico_url);
-        int counter = 4;
-
-        return new Object[]{name, image, price1, price2, change1_24h, change2_24h, change1_1d, change2_1d, change1_7d, change2_7d,
-        change1_14d, change2_14d, change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y, counter};
-
+    private String getChangePrepared(String param, String cur){
+        String s = market_data.get(param).getAsJsonObject().get(cur).getAsString();
+        if (s.length() > 5)s = s.substring(0,5);
+        return s + "%";
     }
 
     private Bitmap loadBitmap(String url){

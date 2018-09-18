@@ -165,8 +165,8 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinner2 = findViewById(R.id.spinner2);
 
         String[] dataAdapter = getListPrices();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, dataAdapter);
-        arrayAdapter.setDropDownViewResource(R.layout.custom_drop_down);
+        ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.prices_list, R.layout.custom_drop_down);
+        //arrayAdapter.setDropDownViewResource(R.layout.custom_drop_down);
         spinner1.setAdapter(arrayAdapter);
         spinner1.setSelection(43);
         spinner2.setAdapter(arrayAdapter);

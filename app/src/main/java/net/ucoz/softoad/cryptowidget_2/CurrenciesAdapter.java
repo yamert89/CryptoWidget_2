@@ -10,6 +10,10 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,6 +34,7 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
    // private static final int MAX_RESULTS = 10;
     private Context mContext;
     private List<String> mResults;
+    private Set<String> listCurrencies;
 
 
     public CurrenciesAdapter(Context mContext) {
@@ -113,7 +119,9 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         return list;
     }
 
-    private Set<String> getListCurrencies() throws IOException { //TODO  сохранить а уже потом брать
+    private Set<String> getListCurrencies() throws IOException {
+        System.out.println(listCurrencies);
+        if (listCurrencies != null) return listCurrencies;
         Set<String> set = new HashSet<>(2000);
         InputStream inputStream = null;
         try {
@@ -129,16 +137,41 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         }
         StringBuilder builder = new StringBuilder();
         while (reader.ready()){
-            builder.append(reader.read());
+            builder.append((char)reader.read());
         }
 
-        /*JsonObject element = new JsonParser().parse(new InputStreamReader(inputStream)).getAsJsonObject();
-        for (Map.Entry<String, JsonElement> el :
-                element.entrySet()) {
-            set.add(el.getValue().getAsJsonObject().get("name").getAsString());
-        }*/
-        Object[] array = new Gson().fromJson(builder.toString(), Object[].class);
+        JsonArray element = new com.google.gson.JsonParser().parse(builder.toString()).getAsJsonArray();
+        for (int i = 0; i < element.size(); i++) {
+            set.add(element.get(i).getAsJsonObject().get("id").getAsString());
+        }
+
+        listCurrencies = set;
+
         return set;
+    }
+
+    class Currency{
+        String id;
+        String symbol;
+        String name;
+
+        public Currency(String id, String symbol, String name) {
+            this.id = id;
+            this.symbol = symbol;
+            this.name = name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
 

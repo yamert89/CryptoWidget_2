@@ -9,6 +9,8 @@
 
     </style>
 
-    <style name="spinnerDropDownItemStyle">#000000</style>
+    <style name="spinnerDropDownItemStyle">
+        <item name="android:textColor">#000</item>
+    </style>
 
 </resources>

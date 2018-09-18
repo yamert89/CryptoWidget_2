@@ -25,6 +25,8 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:prompt="@string/currency1"
+            android:entries="@array/prices_list"
+
             />
 
         <TextView
@@ -33,7 +35,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:textAlignment="center"
-            android:text="@string/app_name"
+            android:text="@string/compar_cur"
             android:textSize="13sp"/>
 
 
@@ -42,7 +44,8 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:prompt="@string/currency2"/>
+            android:prompt="@string/currency2"
+            android:entries="@array/prices_list"/>
     </LinearLayout>
 
 

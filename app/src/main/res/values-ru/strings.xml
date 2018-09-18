@@ -4,7 +4,7 @@
     <string name="widget_name">Crypto Widget</string>
     <string name="widget_text">Text in widget</string>
     <string name="t_price">Price</string>
-    <string name="t_change">Change</string>
+    <string name="t_change">24h</string>
     <string name="t_update">Update</string>
     <string name="radio_color">Фон</string>
     <string name="t_updtime">Время обновления (мин)</string>
@@ -16,9 +16,10 @@
     <string name="t_r">Red:\u0020\u0020\u0020\u0020</string>
     <string name="t_g">Green:</string>
     <string name="t_b">Blue:\u0020\u0020\u0020</string>
-    <string name="hint_crInput">Enter the name</string>
+    <string name="hint_crInput">Введите валютную единицу</string>
     <string name="notice_failed">Не удалось получить данные</string>
     <string name="notice_error">Неизвестная ошибка</string>
     <string name="notice_fail_conn_1">Таймаут соединения. Попытка переподключения...</string>
     <string name="notice_fail_conn_2">Не удалось подключиться к удаленному хосту. Сообщите разработчкику.</string>
+    <string name="compar_cur">Сравниваемая валюта</string>
 </resources>
