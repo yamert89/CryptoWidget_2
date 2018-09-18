@@ -2,9 +2,12 @@ package net.ucoz.softoad.cryptowidget_2;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -175,6 +178,15 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        Context context = getApplicationContext();
+        if (!hasConnection(context)) {
+            Toast.makeText(context,R.string.notice_internet, Toast.LENGTH_LONG).show();
+        }
+    }
+
     private String[] getListPrices(){
         List<String> list = new ArrayList<>(49);
         Properties prop = new Properties();
@@ -201,6 +213,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         try {
 
             String nameOfCrypt = input.getText().toString();
+
             if (nameOfCrypt.equals("")) {
                 Toast.makeText(this, R.string.notice_name, Toast.LENGTH_LONG).show();
                 return;
@@ -247,6 +260,27 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         rl3.setLayoutParams(lp2);
         rl4.setLayoutParams(lp2);
 
+    }
+
+    public boolean hasConnection(final Context context)
+    {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (wifiInfo != null && wifiInfo.isConnected())
+        {
+            return true;
+        }
+        wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (wifiInfo != null && wifiInfo.isConnected())
+        {
+            return true;
+        }
+        wifiInfo = cm.getActiveNetworkInfo();
+        if (wifiInfo != null && wifiInfo.isConnected())
+        {
+            return true;
+        }
+        return false;
     }
 
     public class SeekListener implements SeekBar.OnSeekBarChangeListener{

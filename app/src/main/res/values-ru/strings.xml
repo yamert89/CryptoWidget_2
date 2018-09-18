@@ -22,4 +22,58 @@
     <string name="notice_fail_conn_1">Таймаут соединения. Попытка переподключения...</string>
     <string name="notice_fail_conn_2">Не удалось подключиться к удаленному хосту. Сообщите разработчкику.</string>
     <string name="compar_cur">Сравниваемая валюта</string>
+    <string name="notice_timeout">Время запроса истекло</string>
+    <string name="currency1">1</string>
+    <string name="currency2">2</string>
+    <string-array name="prices_list">
+        <item>aed</item>
+        <item>ars</item>
+        <item>aud</item>
+        <item>bch</item>
+        <item>bdt</item>
+        <item>bhd</item>
+        <item>bmd</item>
+        <item>brl</item>
+        <item>btc</item>
+        <item>cad</item>
+        <item>chf</item>
+        <item>clp</item>
+        <item>cny</item>
+        <item>czk</item>
+        <item>dkk</item>
+        <item>eth</item>
+        <item>eur</item>
+        <item>gbp</item>
+        <item>hkd</item>
+        <item>huf</item>
+        <item>idr</item>
+        <item>ils</item>
+        <item>inr</item>
+        <item>jpy</item>
+        <item>krw</item>
+        <item>kwd</item>
+        <item>lkr</item>
+        <item>ltc</item>
+        <item>mmk</item>
+        <item>mxn</item>
+        <item>myr</item>
+        <item>nok</item>
+        <item>nzd</item>
+        <item>php</item>
+        <item>pkr</item>
+        <item>pln</item>
+        <item>rub</item>
+        <item>sar</item>
+        <item>sek</item>
+        <item>sgd</item>
+        <item>thb</item>
+        <item>try</item>
+        <item>twd</item>
+        <item>usd</item>
+        <item>vef</item>
+        <item>xag</item>
+        <item>xau</item>
+        <item>xdr</item>
+        <item>zar</item>
+    </string-array>
 </resources>

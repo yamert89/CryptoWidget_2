@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -34,13 +33,14 @@ public class Widget extends AppWidgetProvider {
         System.out.println("ACTION______________!!!" + intent.getAction());
         System.out.println("THIS = " + this.hashCode());
         System.out.println("CONTEXT = " + context.hashCode());
-        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && am == null) return;
+
         if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
                 intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
                         intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED)) return;
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && sp.getInt(PREF_TIME, 777) == 777) return;
         String nameCurrency = "";
         String cur1 = sp.getString("cur1","usd");
         String cur2 = sp.getString("cur2","btc");
@@ -52,6 +52,7 @@ public class Widget extends AppWidgetProvider {
                     appWidgetIds) {
                 enableProgress(id, context, appWidgetManager);
                 nameCurrency = sp.getString(PREF_NAME + id, "undefined");
+                if (nameCurrency.equals("undefined")) return;
                 getData(nameCurrency, cur1, cur2);
                 updateWidget(id, context, true, appWidgetManager);
 
@@ -66,9 +67,11 @@ public class Widget extends AppWidgetProvider {
             mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
         }
-        updateWidget(mAppWidgetId, context, true, appWidgetManager);
+        enableProgress(mAppWidgetId, context, appWidgetManager);
+
 
         nameCurrency = sp.getString(PREF_NAME + mAppWidgetId, "undefined");
+        if (nameCurrency.equals("undefined")) return;
 
         if(intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)){
 
@@ -80,8 +83,6 @@ public class Widget extends AppWidgetProvider {
             updateWidget(mAppWidgetId, context, false, appWidgetManager);
             return;
         }
-        SparseArray dataMap = getResultExtras(true).getSparseParcelableArray("datamap");
-        if (dataMap != null) dataMap.remove(mAppWidgetId);
 
         getData(nameCurrency, cur1, cur2);
         updateWidget(mAppWidgetId, context, true, appWidgetManager);
@@ -120,6 +121,8 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         if (am != null) am.cancel(pendingIntent);
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+        sp.edit().clear().apply();
         super.onDisabled(context);
     }
 
@@ -139,13 +142,13 @@ public class Widget extends AppWidgetProvider {
 
 
         if (full) {
-
             if (data[0] != null) views.setImageViewBitmap(R.id.ico, (Bitmap) data[1]);
             views.setTextViewText(R.id.tv_name, (String) data[0]);
             views.setTextViewText(R.id.tv_priceDol,(String) data[2]);
             views.setTextViewText(R.id.tv_priceBTC,(String) data[3]);
             views.setTextViewText(R.id.tv_dyn_Dol,(String) data[4]);
             views.setTextViewText(R.id.tv_dyn_BTC,(String) data[5]);
+            views.setTextViewText(R.id.tv_change, "24h");
 
             int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
             views.setInt(R.id.general, "setBackgroundColor", color);
@@ -298,4 +301,6 @@ public class Widget extends AppWidgetProvider {
 
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent ); //TODO
     }
+
+
 }
