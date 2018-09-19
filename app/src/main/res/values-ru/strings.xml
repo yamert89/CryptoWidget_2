@@ -18,7 +18,7 @@
     <string name="t_b">Blue:\u0020\u0020\u0020</string>
     <string name="hint_crInput">Введите валютную единицу</string>
     <string name="notice_failed">Не удалось получить данные</string>
-    <string name="notice_error">Неизвестная ошибка</string>
+    <string name="notice_error">Что-то пошло не так</string>
     <string name="notice_fail_conn_1">Таймаут соединения. Попытка переподключения...</string>
     <string name="notice_fail_conn_2">Не удалось подключиться к удаленному хосту. Сообщите разработчкику.</string>
     <string name="compar_cur">Сравниваемая валюта</string>

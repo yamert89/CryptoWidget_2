@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.util.concurrent.ExecutionException;
 
@@ -30,62 +31,67 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        System.out.println("ACTION______________!!!" + intent.getAction());
-        System.out.println("THIS = " + this.hashCode());
-        System.out.println("CONTEXT = " + context.hashCode());
+        try {
+            System.out.println("ACTION______________!!!" + intent.getAction());
+            System.out.println("THIS = " + this.hashCode());
+            System.out.println("CONTEXT = " + context.hashCode());
 
-        if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
-                intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
-                        intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED)) return;
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
+                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
+                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED)) return;
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
-        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
-        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && sp.getInt(PREF_TIME, 777) == 777) return;
-        String nameCurrency = "";
-        String cur1 = sp.getString("cur1","usd");
-        String cur2 = sp.getString("cur2","btc");
+            SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+            if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && sp.getInt(PREF_TIME, 777) == 777)
+                return;
+            String nameCurrency = "";
+            String cur1 = sp.getString("cur1", "usd");
+            String cur2 = sp.getString("cur2", "btc");
 
-        if (intent.getAction().equals(ALL_WIDGET_UPDATE)){
-            ComponentName thisWidget = new ComponentName(context, Widget.class);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-            for (int id :
-                    appWidgetIds) {
-                enableProgress(id, context, appWidgetManager);
-                nameCurrency = sp.getString(PREF_NAME + id, "undefined");
-                if (nameCurrency.equals("undefined")) return;
-                getData(nameCurrency, cur1, cur2);
-                updateWidget(id, context, true, appWidgetManager);
+            if (intent.getAction().equals(ALL_WIDGET_UPDATE)) {
+                ComponentName thisWidget = new ComponentName(context, Widget.class);
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+                for (int id :
+                        appWidgetIds) {
+                    enableProgress(id, context, appWidgetManager);
+                    nameCurrency = sp.getString(PREF_NAME + id, "undefined");
+                    if (nameCurrency.equals("undefined")) return;
+                    getData(nameCurrency, cur1, cur2);
+                    updateWidget(id, context, true, appWidgetManager);
+
+                }
+                return;
 
             }
-            return;
 
+            int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+
+            }
+            enableProgress(mAppWidgetId, context, appWidgetManager);
+
+
+            nameCurrency = sp.getString(PREF_NAME + mAppWidgetId, "undefined");
+            if (nameCurrency.equals("undefined")) return;
+
+            if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)) {
+
+                int time = sp.getInt(PREF_TIME, 5) * 60000;
+                startAlarm(context, time);
+            }
+
+            if (intent.getAction().equals(DYNAMIC_WIDGET_UPDATE)) {
+                updateWidget(mAppWidgetId, context, false, appWidgetManager);
+                return;
+            }
+
+            getData(nameCurrency, cur1, cur2);
+            updateWidget(mAppWidgetId, context, true, appWidgetManager);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-
-        }
-        enableProgress(mAppWidgetId, context, appWidgetManager);
-
-
-        nameCurrency = sp.getString(PREF_NAME + mAppWidgetId, "undefined");
-        if (nameCurrency.equals("undefined")) return;
-
-        if(intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)){
-
-            int time = sp.getInt(PREF_TIME, 5) * 60000;
-            startAlarm(context, time);
-        }
-
-        if (intent.getAction().equals(DYNAMIC_WIDGET_UPDATE)){
-            updateWidget(mAppWidgetId, context, false, appWidgetManager);
-            return;
-        }
-
-        getData(nameCurrency, cur1, cur2);
-        updateWidget(mAppWidgetId, context, true, appWidgetManager);
 
 
 
@@ -110,12 +116,6 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
-
-
-
-
-
-
     }
 
     @Override
@@ -126,106 +126,104 @@ public class Widget extends AppWidgetProvider {
         super.onDisabled(context);
     }
 
-    @Override
-    public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
-        super.onRestored(context, oldWidgetIds, newWidgetIds);
-    }
 
     private void updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
+        try {
 
-        System.out.println("UPDATE WIDGET - " + id);
+            System.out.println("UPDATE WIDGET - " + id);
 
-        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-
-
-
-        if (full) {
-            if (data[0] != null) views.setImageViewBitmap(R.id.ico, (Bitmap) data[1]);
-            views.setTextViewText(R.id.tv_name, (String) data[0]);
-            views.setTextViewText(R.id.tv_priceDol,(String) data[2]);
-            views.setTextViewText(R.id.tv_priceBTC,(String) data[3]);
-            views.setTextViewText(R.id.tv_dyn_Dol,(String) data[4]);
-            views.setTextViewText(R.id.tv_dyn_BTC,(String) data[5]);
-            views.setTextViewText(R.id.tv_change, "24h");
-
-            int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
-            views.setInt(R.id.general, "setBackgroundColor", color);
-            System.out.println("DATA SAVE" + data.length);
-
-           saveChangeData(data, id,  sp);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 
 
-        }else {
-            Object[] data2 = getChangeData(id, sp);
-            int idx = (int) data2[14];
-            System.out.println("IDX_________________! : " + idx);
-            String header = "";
-            for (Object ob :
-                    data2) {
-                System.out.println(ob);
+            if (full) {
+                if (data[0] != null) views.setImageViewBitmap(R.id.ico, (Bitmap) data[1]);
+                views.setTextViewText(R.id.tv_name, (String) data[0]);
+                views.setTextViewText(R.id.tv_priceDol, (String) data[2]);
+                views.setTextViewText(R.id.tv_priceBTC, (String) data[3]);
+                views.setTextViewText(R.id.tv_dyn_Dol, (String) data[4]);
+                views.setTextViewText(R.id.tv_dyn_BTC, (String) data[5]);
+                views.setTextViewText(R.id.tv_change, "24h");
+
+                int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
+                views.setInt(R.id.general, "setBackgroundColor", color);
+                System.out.println("DATA SAVE" + data.length);
+
+                saveChangeData(data, id, sp);
+
+
+            } else {
+                Object[] data2 = getChangeData(id, sp);
+                int idx = (int) data2[14];
+                System.out.println("IDX_________________! : " + idx);
+                String header = "";
+                for (Object ob :
+                        data2) {
+                    System.out.println(ob);
+                }
+                switch (idx) {
+                    case 0:
+                        header = "24h";
+                        break;
+                    case 2:
+                        header = "7d";
+                        break;
+                    case 4:
+                        header = "14d";
+                        break;
+                    case 6:
+                        header = "30d";
+                        break;
+                    case 8:
+                        header = "60d";
+                        break;
+                    case 10:
+                        header = "200d";
+                        break;
+                    case 12:
+                        header = "1y";
+                        break;
+                    default:
+                        header = "?";
+                        break;
+                }
+
+
+                System.out.println("DATA GET  = " + data2.length);
+
+                views.setTextViewText(R.id.tv_dyn_Dol, (String) data2[idx]);
+                views.setTextViewText(R.id.tv_dyn_BTC, (String) data2[++idx]);
+
+
+                views.setTextViewText(R.id.tv_change, header);
+                if (idx < 13) sp.edit().putInt(id + "change_counter", ++idx).apply();
+                else sp.edit().putInt(id + "change_counter", 0).apply();
+
+
             }
-            switch (idx) {
-                case 0:
-                    header = "24h";
-                    break;
-                case 2:
-                    header = "7d";
-                    break;
-                case 4:
-                    header = "14d";
-                    break;
-                case 6:
-                    header = "30d";
-                    break;
-                case 8:
-                    header = "60d";
-                    break;
-                case 10:
-                    header = "200d";
-                    break;
-                case 12:
-                    header = "1y";
-                    break;
-                default:
-                    header = "?";
-                    break;
-            }
 
+            //onClick
+            Intent updateIntent = new Intent(context, Widget.class);
+            updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+            PendingIntent pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
+            views.setOnClickPendingIntent(R.id.button, pIntent);
 
-            System.out.println("DATA GET  = " + data2.length);
+            updateIntent = new Intent(context, Widget.class);
+            updateIntent.setAction(DYNAMIC_WIDGET_UPDATE);
+            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+            pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
+            views.setOnClickPendingIntent(R.id.tv_change, pIntent);
+            views.setOnClickPendingIntent(R.id.tv_dyn_Dol, pIntent);
+            views.setOnClickPendingIntent(R.id.tv_dyn_BTC, pIntent);
 
-            views.setTextViewText(R.id.tv_dyn_Dol,(String) data2[idx]);
-            views.setTextViewText(R.id.tv_dyn_BTC,(String) data2[++idx]);
+            views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
 
-
-            views.setTextViewText(R.id.tv_change, header);
-            if (idx < 13) sp.edit().putInt(id + "change_counter", ++idx).apply();
-            else sp.edit().putInt(id + "change_counter", 0).apply();
-
-
-
+            appWidgetManager.updateAppWidget(id, views);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        //onClick
-        Intent updateIntent = new Intent(context, Widget.class);
-        updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
-        views.setOnClickPendingIntent(R.id.button, pIntent);
-
-        updateIntent = new Intent(context, Widget.class);
-        updateIntent.setAction(DYNAMIC_WIDGET_UPDATE);
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
-        pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
-        views.setOnClickPendingIntent(R.id.tv_change, pIntent);
-        views.setOnClickPendingIntent(R.id.tv_dyn_Dol, pIntent);
-        views.setOnClickPendingIntent(R.id.tv_dyn_BTC, pIntent);
-
-        views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
-
-        appWidgetManager.updateAppWidget(id, views);
 
 
     }
@@ -279,14 +277,14 @@ public class Widget extends AppWidgetProvider {
         }
     }
 
-    private void enableProgress(int id, Context context, AppWidgetManager manager){
+    private void enableProgress(int id, Context context, AppWidgetManager manager) throws Exception{
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         views.setViewVisibility(R.id.progressBar, View.VISIBLE);
         manager.updateAppWidget(id, views);
 
     }
 
-    void startAlarm(Context context, int xTime){
+    void startAlarm(Context context, int xTime) throws Exception{
         System.out.println("Start Alarm");
 
         Intent intent = new Intent(context,Widget.class);
@@ -301,6 +299,8 @@ public class Widget extends AppWidgetProvider {
 
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent ); //TODO
     }
+
+
 
 
 }
