@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -59,7 +61,7 @@ public class Widget extends AppWidgetProvider {
                     enableProgress(id, context, appWidgetManager);
                     nameCurrency = sp.getString(PREF_NAME + id, "undefined");
                     if (nameCurrency.equals("undefined")) return;
-                    getData(nameCurrency, cur1, cur2);
+                    getData(nameCurrency, cur1, cur2, context);
                     saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                     updateWidget(id, context, true, appWidgetManager);
 
@@ -84,6 +86,8 @@ public class Widget extends AppWidgetProvider {
 
                 int time = sp.getInt(PREF_TIME, 5) * 60000;
                 startAlarm(context, time);
+                sp.edit().putBoolean("executed", true).apply();
+
             }
 
             if (intent.getAction().equals(DYNAMIC_WIDGET_UPDATE)) {
@@ -91,7 +95,7 @@ public class Widget extends AppWidgetProvider {
                 return;
             }
 
-            getData(nameCurrency, cur1, cur2);
+            getData(nameCurrency, cur1, cur2, context);
             saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
             updateWidget(mAppWidgetId, context, true, appWidgetManager);
         }catch (Exception e){
@@ -110,16 +114,21 @@ public class Widget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
         System.out.println("__________________ON UPDATE!!!");
+        Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+        boolean reload = sp.getBoolean("reload", false);
+        if (!reload) return;
+        sp.edit().putBoolean("reload", false).apply();
         for (int id :
                 appWidgetIds) {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
-            getData(oldData[0], oldData[1], oldData[2]);
+            getData(oldData[0], oldData[1], oldData[2], context);
             boolean res = updateWidget(id, context, true, appWidgetManager);
             if (!res) return;
         }
 
-        Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
+
 
     }
 
@@ -135,6 +144,11 @@ public class Widget extends AppWidgetProvider {
         super.onEnabled(context);
         System.out.println("________________________________________ON ENABLED ___________________");
         Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+        boolean executed = sp.getBoolean("executed", false);
+        if (!executed) return;
+        sp.edit().putBoolean("reload", true).apply();
+
 
 
 
@@ -145,6 +159,7 @@ public class Widget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
+        System.out.println("________ON DISABLED");
         if (am != null) am.cancel(pendingIntent);
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
         sp.edit().clear().apply();
@@ -297,10 +312,8 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private void getData(String s, String cur1, String cur2){
-
-
-
+    private void getData(String s, String cur1, String cur2, Context context){
+        if (!Utils.hasConnection(context)) scheduleGetData(context, s, cur1, cur2);
         DataProvider provider = new DataProvider();
         provider.execute(s, cur1, cur2);
         try {
@@ -310,6 +323,19 @@ public class Widget extends AppWidgetProvider {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void scheduleGetData(final Context context, final String s, final String cur1, final String cur2){
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (Utils.hasConnection(context)) {
+                    getData(s, cur1, cur2, context);
+                    timer.cancel();
+                }
+            }
+        }, 2000, 2000);
     }
 
     private void saveIdDataForReboot(int id, String nameC, String cur1, String cur2, Context context){
