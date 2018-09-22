@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,8 +36,8 @@ public class Widget extends AppWidgetProvider {
         System.out.println("____________ON RECEIVE!!!");
         try {
             System.out.println("ACTION______________!!!" + intent.getAction());
-            System.out.println("THIS = " + this.hashCode());
-            System.out.println("CONTEXT = " + context.hashCode());
+            //System.out.println("THIS = " + this.hashCode());
+            //System.out.println("CONTEXT = " + context.hashCode());
 
             if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
                     intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
@@ -114,7 +113,7 @@ public class Widget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
         System.out.println("__________________ON UPDATE!!!");
-        Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
         boolean reload = sp.getBoolean("reload", false);
         if (!reload) return;
@@ -136,14 +135,14 @@ public class Widget extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         if (am != null) am.cancel(pendingIntent);
         super.onDeleted(context, appWidgetIds);
-        Toast.makeText(context, "onDeleted", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "onDeleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
         System.out.println("________________________________________ON ENABLED ___________________");
-        Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
         boolean executed = sp.getBoolean("executed", false);
         if (!executed) return;
@@ -169,13 +168,13 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
         super.onRestored(context, oldWidgetIds, newWidgetIds);
-        Toast.makeText(context, "onRestored", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "onRestored", Toast.LENGTH_SHORT).show();
 
     }
 
     private boolean updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
         try {
-        Toast.makeText(context, "UPDATE WIDGET", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "UPDATE WIDGET", Toast.LENGTH_SHORT).show();
 
             System.out.println("UPDATE WIDGET - " + id);
 
@@ -185,6 +184,7 @@ public class Widget extends AppWidgetProvider {
 
 
             if (full) {
+                if (data == null) return false;
                 if (data[0] != null) views.setImageViewBitmap(R.id.ico, (Bitmap) data[1]);
                 views.setTextViewText(R.id.tv_name, (String) data[0]);
                 views.setTextViewText(R.id.tv_priceDol, (String) data[2]);
@@ -195,7 +195,7 @@ public class Widget extends AppWidgetProvider {
 
                 int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
                 views.setInt(R.id.general, "setBackgroundColor", color);
-                System.out.println("DATA SAVE" + data.length);
+                //System.out.println("DATA SAVE" + data.length);
 
                 saveChangeData(data, id, sp);
 
@@ -203,11 +203,11 @@ public class Widget extends AppWidgetProvider {
             } else {
                 Object[] data2 = getChangeData(id, sp);
                 int idx = (int) data2[14];
-                System.out.println("IDX_________________! : " + idx);
+               // System.out.println("IDX_________________! : " + idx);
                 String header = "";
                 for (Object ob :
                         data2) {
-                    System.out.println(ob);
+                    //System.out.println(ob);
                 }
                 switch (idx) {
                     case 0:
@@ -237,7 +237,7 @@ public class Widget extends AppWidgetProvider {
                 }
 
 
-                System.out.println("DATA GET  = " + data2.length);
+                //System.out.println("DATA GET  = " + data2.length);
 
                 views.setTextViewText(R.id.tv_dyn_Dol, (String) data2[idx]);
                 views.setTextViewText(R.id.tv_dyn_BTC, (String) data2[++idx]);
@@ -318,6 +318,7 @@ public class Widget extends AppWidgetProvider {
         provider.execute(s, cur1, cur2);
         try {
             data = provider.get();
+            //if (data == null) Toast.makeText(context, R.string.notice_failed, Toast.LENGTH_SHORT).show();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -326,13 +327,15 @@ public class Widget extends AppWidgetProvider {
     }
 
     private void scheduleGetData(final Context context, final String s, final String cur1, final String cur2){
-        final Timer timer = new Timer();
+        final Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                System.out.println("отложенная Проверка сети");
                 if (Utils.hasConnection(context)) {
                     getData(s, cur1, cur2, context);
                     timer.cancel();
+
                 }
             }
         }, 2000, 2000);
@@ -383,7 +386,7 @@ public class Widget extends AppWidgetProvider {
         else am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
 
-        System.out.println("time " + xTime);
+        //System.out.println("time " + xTime);
 
 
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent ); //TODO

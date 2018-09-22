@@ -6,8 +6,8 @@ android {
         applicationId "net.ucoz.softoad.cryptowidget"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 11
-        versionName "2.0"
+        versionCode 13
+        versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

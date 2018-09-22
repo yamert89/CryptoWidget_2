@@ -57,6 +57,12 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
                 response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").ignoreContentType(true).execute();
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").timeout(5000).ignoreContentType(true).execute();
+                }catch (Exception e2){
+                    e2.printStackTrace();
+                    return null;
+                }
             }
             String json = response.body();
             JsonElement element = new JsonParser().parse(json);
@@ -111,7 +117,7 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
             s = market_data.get(param).getAsJsonObject().get(cur).getAsString();
             if (s.length() > 5) s = s.substring(0, 5);
         }catch (NullPointerException e){
-            System.out.println("!!!!!!!!!!!!String = " + s);
+            //System.out.println("!!!!!!!!!!!!String = " + s);
             return "?";
         }
         return s + "%";
