@@ -118,6 +118,7 @@ public class Widget extends AppWidgetProvider {
             boolean res = updateWidget(id, context, true, appWidgetManager);
             if (!res) return;
         }
+
         Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
 
     }
@@ -331,6 +332,8 @@ public class Widget extends AppWidgetProvider {
             editor.remove(id + "dataRebootCur1");
             editor.remove(id + "dataRebootCur2");
             editor.apply();
+            int time = sp.getInt(PREF_TIME, 5) * 60000;
+            startAlarm(context, time);
         }catch (Exception e){
             return null;
         }
