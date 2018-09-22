@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-
 import java.util.concurrent.ExecutionException;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -104,6 +103,7 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
+        Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -111,11 +111,19 @@ public class Widget extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         if (am != null) am.cancel(pendingIntent);
         super.onDeleted(context, appWidgetIds);
+        Toast.makeText(context, "onDeleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
+        Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
+
+
+
+
+
+
     }
 
     @Override
@@ -126,9 +134,16 @@ public class Widget extends AppWidgetProvider {
         super.onDisabled(context);
     }
 
+    @Override
+    public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
+        super.onRestored(context, oldWidgetIds, newWidgetIds);
+        Toast.makeText(context, "onRestored", Toast.LENGTH_SHORT).show();
+
+    }
 
     private void updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
         try {
+        Toast.makeText(context, "UPDATE WIDGET", Toast.LENGTH_SHORT).show();
 
             System.out.println("UPDATE WIDGET - " + id);
 
