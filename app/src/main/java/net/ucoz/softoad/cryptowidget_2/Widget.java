@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
 import java.util.concurrent.ExecutionException;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -22,6 +23,7 @@ import static net.ucoz.softoad.cryptowidget_2.ConfigActivity.PREF_TIME;
 public class Widget extends AppWidgetProvider {
     static final String ALL_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.All_WIDGET_UPDATE";
     static final String DYNAMIC_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.DYNAMIC_WIDGET_UPDATE";
+    static final String SOME_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.SOME_WIDGET_UPDATE";
     PendingIntent pendingIntent;
     AlarmManager am;
     Object[] data;
@@ -30,6 +32,7 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+        System.out.println("____________ON RECEIVE!!!");
         try {
             System.out.println("ACTION______________!!!" + intent.getAction());
             System.out.println("THIS = " + this.hashCode());
@@ -37,15 +40,16 @@ public class Widget extends AppWidgetProvider {
 
             if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
                     intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
-                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED)) return;
+                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED) ||
+                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) return;
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
             SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
-            if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) && sp.getInt(PREF_TIME, 777) == 777)
-                return;
+
             String nameCurrency = "";
             String cur1 = sp.getString("cur1", "usd");
             String cur2 = sp.getString("cur2", "btc");
+
 
             if (intent.getAction().equals(ALL_WIDGET_UPDATE)) {
                 ComponentName thisWidget = new ComponentName(context, Widget.class);
@@ -56,6 +60,7 @@ public class Widget extends AppWidgetProvider {
                     nameCurrency = sp.getString(PREF_NAME + id, "undefined");
                     if (nameCurrency.equals("undefined")) return;
                     getData(nameCurrency, cur1, cur2);
+                    saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                     updateWidget(id, context, true, appWidgetManager);
 
                 }
@@ -87,6 +92,7 @@ public class Widget extends AppWidgetProvider {
             }
 
             getData(nameCurrency, cur1, cur2);
+            saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
             updateWidget(mAppWidgetId, context, true, appWidgetManager);
         }catch (Exception e){
             e.printStackTrace();
@@ -103,6 +109,15 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
+        System.out.println("__________________ON UPDATE!!!");
+        for (int id :
+                appWidgetIds) {
+            String[] oldData = getIdDataForReboot(id, context);
+            if (oldData == null) return;
+            getData(oldData[0], oldData[1], oldData[2]);
+            boolean res = updateWidget(id, context, true, appWidgetManager);
+            if (!res) return;
+        }
         Toast.makeText(context, "onUpdate", Toast.LENGTH_SHORT).show();
 
     }
@@ -117,6 +132,7 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
+        System.out.println("________________________________________ON ENABLED ___________________");
         Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
 
 
@@ -141,7 +157,7 @@ public class Widget extends AppWidgetProvider {
 
     }
 
-    private void updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
+    private boolean updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
         try {
         Toast.makeText(context, "UPDATE WIDGET", Toast.LENGTH_SHORT).show();
 
@@ -220,7 +236,7 @@ public class Widget extends AppWidgetProvider {
 
             //onClick
             Intent updateIntent = new Intent(context, Widget.class);
-            updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            updateIntent.setAction(SOME_WIDGET_UPDATE);
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
             PendingIntent pIntent = PendingIntent.getBroadcast(context, id, updateIntent, 0);
             views.setOnClickPendingIntent(R.id.button, pIntent);
@@ -238,7 +254,9 @@ public class Widget extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(id, views);
         }catch (Exception e){
             e.printStackTrace();
+            return false;
         }
+        return true;
 
 
     }
@@ -281,6 +299,7 @@ public class Widget extends AppWidgetProvider {
     private void getData(String s, String cur1, String cur2){
 
 
+
         DataProvider provider = new DataProvider();
         provider.execute(s, cur1, cur2);
         try {
@@ -290,6 +309,32 @@ public class Widget extends AppWidgetProvider {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void saveIdDataForReboot(int id, String nameC, String cur1, String cur2, Context context){
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(id + "dataRebootNameC", nameC);
+        editor.putString(id + "dataRebootCur1", cur1);
+        editor.putString(id + "dataRebootCur2", cur2);
+        editor.apply();
+    }
+
+    private String[] getIdDataForReboot(int id, Context context){
+        String[] data = null;
+        try {
+            SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            data = new String[]{sp.getString(id + "dataRebootNameC", ""), sp.getString(id + "dataRebootCur1", ""),
+                    sp.getString(id + "dataRebootCur2", "")};
+            editor.remove(id + "dataRebootNameC");
+            editor.remove(id + "dataRebootCur1");
+            editor.remove(id + "dataRebootCur2");
+            editor.apply();
+        }catch (Exception e){
+            return null;
+        }
+        return data;
     }
 
     private void enableProgress(int id, Context context, AppWidgetManager manager) throws Exception{

@@ -32,6 +32,12 @@
                     android:priority="100">
                 </action>
             </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="net.ucoz.softoad.cryptowidget.SOME_WIDGET_UPDATE"
+                    android:priority="100">
+                </action>
+            </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_metadata">
