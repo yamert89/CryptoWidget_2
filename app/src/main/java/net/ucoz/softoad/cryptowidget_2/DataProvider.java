@@ -54,11 +54,21 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
 
             Connection.Response response = null;
             try {
-                response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").ignoreContentType(true).execute();
+
+                response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false")
+                        .header(":authority","api.coingecko.com")
+                        .header("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                        .header("accept-encoding","zip, deflate, br")
+                        .header("accept-language","ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
+                        .header("cache-control","max-age=0")
+                        .header("if-none-match","W/\"a0be9bb9c87cd8c7f7a24a2263d35df1\"")
+                        .header("upgrade-insecure-requests","1")
+                        .referrer("https://api.coingecko.com")
+                        .ignoreContentType(true).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 OPR/56.0.3051.99").execute();
             } catch (IOException e) {
                 e.printStackTrace();
                 try {
-                    response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&sparkline=false").timeout(5000).ignoreContentType(true).execute();
+                    response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false").timeout(5000).ignoreContentType(true).userAgent("Mozilla/5.0").execute();
                 }catch (Exception e2){
                     e2.printStackTrace();
                     return null;
