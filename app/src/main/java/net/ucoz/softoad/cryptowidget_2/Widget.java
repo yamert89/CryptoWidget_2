@@ -48,9 +48,8 @@ public class Widget extends AppWidgetProvider {
             SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
             String nameCurrency = "";
-            String cur1 = sp.getString("cur1", "usd");
-            String cur2 = sp.getString("cur2", "btc");
-
+            String cur1 = "";
+            String cur2 = "";
 
             if (intent.getAction().equals(ALL_WIDGET_UPDATE)) {
                 ComponentName thisWidget = new ComponentName(context, Widget.class);
@@ -60,7 +59,14 @@ public class Widget extends AppWidgetProvider {
                     enableProgress(id, context, appWidgetManager);
                     nameCurrency = sp.getString(PREF_NAME + id, "undefined");
                     if (nameCurrency.equals("undefined")) return;
-                    getData(nameCurrency, cur1, cur2, context);
+                    cur1 = sp.getString("cur1" + id, "usd");
+                    cur2 = sp.getString("cur2" + id, "btc");
+
+                    if (!getData(nameCurrency, cur1, cur2, context)) {
+                        disableProgress(id, context, appWidgetManager);
+                        //saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
+                        return;
+                    }
                     saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                     updateWidget(id, context, true, appWidgetManager);
 
@@ -94,7 +100,14 @@ public class Widget extends AppWidgetProvider {
                 return;
             }
 
-            getData(nameCurrency, cur1, cur2, context);
+            cur1 = sp.getString("cur1" + mAppWidgetId, "usd");
+            cur2 = sp.getString("cur2" + mAppWidgetId, "btc");
+
+            if (!getData(nameCurrency, cur1, cur2, context)) {
+                disableProgress(mAppWidgetId, context, appWidgetManager);
+                //saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
+                return;
+            }
             saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
             updateWidget(mAppWidgetId, context, true, appWidgetManager);
         }catch (Exception e){
@@ -122,7 +135,10 @@ public class Widget extends AppWidgetProvider {
                 appWidgetIds) {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
-            getData(oldData[0], oldData[1], oldData[2], context);
+            if (!getData(oldData[0], oldData[1], oldData[2], context)) {
+                disableProgress(id, context, appWidgetManager);
+                return;
+            }
             boolean res = updateWidget(id, context, true, appWidgetManager);
             if (!res) return;
         }
@@ -205,10 +221,10 @@ public class Widget extends AppWidgetProvider {
                 int idx = (int) data2[14];
                // System.out.println("IDX_________________! : " + idx);
                 String header = "";
-                for (Object ob :
+                /*for (Object ob :
                         data2) {
                     //System.out.println(ob);
-                }
+                }*/
                 switch (idx) {
                     case 0:
                         header = "24h";
@@ -266,7 +282,6 @@ public class Widget extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.tv_dyn_BTC, pIntent);
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
-
             appWidgetManager.updateAppWidget(id, views);
         }catch (Exception e){
             e.printStackTrace();
@@ -312,18 +327,25 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private void getData(String s, String cur1, String cur2, Context context){
-        if (!Utils.hasConnection(context)) scheduleGetData(context, s, cur1, cur2);
+    private boolean getData(String s, String cur1, String cur2, Context context){
+        if (!Utils.hasConnection(context)) {
+            return false;
+        }
         DataProvider provider = new DataProvider();
         provider.execute(s, cur1, cur2);
         try {
             data = provider.get();
             //if (data == null) Toast.makeText(context, R.string.notice_failed, Toast.LENGTH_SHORT).show();
+            if (data == null) return false;
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return false;
+
         } catch (ExecutionException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     private void scheduleGetData(final Context context, final String s, final String cur1, final String cur2){
@@ -373,7 +395,12 @@ public class Widget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         views.setViewVisibility(R.id.progressBar, View.VISIBLE);
         manager.updateAppWidget(id, views);
+    }
 
+    private void disableProgress(int id, Context context, AppWidgetManager manager){
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+        views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
+        manager.updateAppWidget(id, views);
     }
 
     void startAlarm(Context context, int xTime) throws Exception{

@@ -224,8 +224,8 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
             editor.putInt(PREF_COLOR + widgetID, backgroundColor);
             editor.putInt(PREF_TIME, valueTime);
 
-            editor.putString("cur1", spinner1.getSelectedItem().toString());
-            editor.putString("cur2", spinner2.getSelectedItem().toString());
+            editor.putString("cur1" + widgetID, spinner1.getSelectedItem().toString());
+            editor.putString("cur2" + widgetID, spinner2.getSelectedItem().toString());
             editor.apply();
 
             System.out.println("valueTime" + valueTime);

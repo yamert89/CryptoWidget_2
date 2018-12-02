@@ -54,10 +54,28 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
 
             Connection.Response response = null;
             try {
+                String url = "https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru";
+                System.out.println("URL : " + url);
+                response = Jsoup.connect("dfsdf").timeout(14000).execute();
+            }catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Повторное подключение");
+                response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru")
+                        .header(":authority","api.coingecko.com")
+                        .header("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                        //.header("accept-encoding","zip, deflate, br")
+                        //.header("accept-language","ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
+                        .header("cache-control","max-age=0")
+                        .header("upgrade-insecure-requests","1")
+                        .referrer("https://api.coingecko.com")
+                        .timeout(15000)
+                        .ignoreContentType(true).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 OPR/56.0.3051.99").execute();
+            }
+           /* try {
 
                 response = Jsoup.connect("https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru&tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false")
                         .header(":authority","api.coingecko.com")
-                        .header("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                        .header("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,;q=0.8")
                         .header("accept-encoding","zip, deflate, br")
                         .header("accept-language","ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
                         .header("cache-control","max-age=0")
@@ -73,8 +91,16 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
                     e2.printStackTrace();
                     return null;
                 }
-            }
+            }*/
             String json = response.body();
+            System.out.println("RESPONSE : ");
+            try {
+                for (int i = 0; i < json.length(); i += 172) {
+                    System.out.println(json.substring(i, i + 172));
+                }
+            }catch (IndexOutOfBoundsException e){
+                System.out.println("out of range");
+            }
             JsonElement element = new JsonParser().parse(json);
 
             market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
