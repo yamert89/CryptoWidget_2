@@ -24,7 +24,8 @@
     <string name="currency1">Currency 1</string>
     <string name="currency2">Currency 2</string>
     <string name="compar_cur">Comparable currency</string>
-    <string-array name="prices_list">
+    <string name="strategy">Data provider:</string>
+    <string-array name="coingecko_prices_list">
         <item>aed</item>
         <item>ars</item>
         <item>aud</item>
@@ -74,5 +75,43 @@
         <item>xau</item>
         <item>xdr</item>
         <item>zar</item>
+    </string-array>
+    <string-array name="coinmarketcap_prices_list">
+        <item>USD</item>
+        <item>AUD</item>
+        <item>BRL</item>
+        <item>CAD</item>
+        <item>CHF</item>
+        <item>CLP</item>
+        <item>CNY</item>
+        <item>CZK</item>
+        <item>DKK</item>
+        <item>EUR</item>
+        <item>GBP</item>
+        <item>HKD</item>
+        <item>HUF</item>
+        <item>IDR</item>
+        <item>ILS</item>
+        <item>INR</item>
+        <item>JPY</item>
+        <item>KRW</item>
+        <item>MXN</item>
+        <item>MYR</item>
+        <item>NOK</item>
+        <item>NZD</item>
+        <item>PHP</item>
+        <item>PKR</item>
+        <item>PLN</item>
+        <item>RUB</item>
+        <item>SEK</item>
+        <item>SGD</item>
+        <item>THB</item>
+        <item>TRY</item>
+        <item>TWD</item>
+        <item>ZAR</item>
+    </string-array>
+    <string-array name="strategy_list">
+        <item>coingecko.com</item>
+        <item>coinmarketcap.com</item>
     </string-array>
 </resources>

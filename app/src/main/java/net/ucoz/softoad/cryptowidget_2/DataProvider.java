@@ -19,15 +19,15 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
         String name = strings[0];
         String cur1 = strings[1];
         String cur2 = strings[2];
-        //String strat= strings[3];
-        String strat= "coinmarketcap";
+        String strat= strings[3];
+        //String strat= "coinmarketcap";
         Strategy strategy = null;
 
         switch (strat){
-            case "coingecko":
+            case Utils.STRATEGY_COINGECKO:
                 strategy = new CoinGeckoStrategy(name, cur1, cur2);
                 break;
-            case "coinmarketcap":
+            case Utils.STRATEGY_COINMARKETCAP:
                 strategy = new CoinMarketCapStrategy(name, cur1, cur2);
                 break;
         }

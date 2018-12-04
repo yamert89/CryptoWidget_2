@@ -40,6 +40,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
     public static final String PREF_NAME = "name";
     public static final String PREF_COLOR = "color";
     public static final String PREF_TIME = "time";
+    public static String STRATEGY = Utils.STRATEGY_COINGECKO;
 
     private int widgetID = AppWidgetManager.INVALID_APPWIDGET_ID;
     private Intent resultValue;
@@ -71,6 +72,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
     private Spinner spinner1;
     private Spinner spinner2;
+    private Spinner spinnerStrategy;
 
     private  FrameLayout frameLayout;
 
@@ -162,19 +164,59 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         valueTime = sp.getInt(ConfigActivity.PREF_TIME, 5);
         valTime.setText(String.valueOf(valueTime));
 
+
+
         spinner1 = findViewById(R.id.spinner1);
         spinner2 = findViewById(R.id.spinner2);
+        spinnerStrategy = findViewById(R.id.spinnerStrategy);
 
-        String[] dataAdapter = getListPrices();
-        ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.coingecko_prices_list, R.layout.custom_drop_down);
+        //String[] dataAdapter = getListPrices();
+        STRATEGY = sp.getString("strategy", Utils.STRATEGY_COINGECKO);
+
+        int prices_list = 0;
+        int defaultValue_1 = 0;
+        int defaultValue_2 = 0;
+        switch (STRATEGY){
+            case Utils.STRATEGY_COINGECKO:
+                prices_list = R.array.coingecko_prices_list;
+                defaultValue_1 = 43;
+                defaultValue_2 = 8;
+                break;
+            case Utils.STRATEGY_COINMARKETCAP:
+                prices_list = R.array.coinmarketcap_prices_list;
+                defaultValue_1 = 0;
+                defaultValue_2 = 25;
+                break;
+        }
+        ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(getApplicationContext(), prices_list, R.layout.custom_drop_down);
         //arrayAdapter.setDropDownViewResource(R.layout.custom_drop_down);
         spinner1.setAdapter(arrayAdapter);
-        spinner1.setSelection(43);
+        spinner1.setSelection(defaultValue_1);
         spinner2.setAdapter(arrayAdapter);
-        spinner2.setSelection(8);
+        spinner2.setSelection(defaultValue_2);
+
+        spinnerStrategy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 1:
+                        STRATEGY = Utils.STRATEGY_COINGECKO;
+                        break;
+                    case 2:
+                        STRATEGY = Utils.STRATEGY_COINMARKETCAP;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
     }
+
 
     @Override
     protected void onPostResume() {
@@ -226,6 +268,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
             editor.putString("cur1" + widgetID, spinner1.getSelectedItem().toString());
             editor.putString("cur2" + widgetID, spinner2.getSelectedItem().toString());
+            editor.putString("strategy", STRATEGY);
             editor.apply();
 
             System.out.println("valueTime" + valueTime);

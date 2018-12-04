@@ -13,9 +13,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -348,8 +345,10 @@ public class Widget extends AppWidgetProvider {
         if (!Utils.hasConnection(context)) {
             return false;
         }
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+
         DataProvider provider = new DataProvider();
-        provider.execute(s, cur1, cur2);
+        provider.execute(s, cur1, cur2, sp.getString("strategy", null));
         try {
             data = provider.get();
             //if (data == null) Toast.makeText(context, R.string.notice_failed, Toast.LENGTH_SHORT).show();
