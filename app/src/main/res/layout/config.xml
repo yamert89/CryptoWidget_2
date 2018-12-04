@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:prompt="@string/currency1"
-            android:entries="@array/prices_list"
+            android:entries="@array/coingecko_prices_list"
 
             />
 
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:prompt="@string/currency2"
-            android:entries="@array/prices_list"/>
+            android:entries="@array/coingecko_prices_list"/>
     </LinearLayout>
 
 

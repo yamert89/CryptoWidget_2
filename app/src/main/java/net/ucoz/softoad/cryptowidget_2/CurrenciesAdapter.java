@@ -124,7 +124,7 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         Set<String> set = new HashSet<>(2000);
         InputStream inputStream = null;
         try {
-            inputStream = mContext.getResources().getAssets().open("list_currencies.json");
+            inputStream = mContext.getResources().getAssets().open("coingecko_list_currencies.json");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -146,10 +146,6 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         }
 
         listCurrencies = set;
-        boolean one = set.contains("bitcoin");
-        boolean two = set.contains("bitcoiin");
-        System.out.println(one);
-        System.out.println(two);
 
         return set;
     }

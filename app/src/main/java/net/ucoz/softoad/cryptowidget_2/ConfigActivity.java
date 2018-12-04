@@ -166,7 +166,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinner2 = findViewById(R.id.spinner2);
 
         String[] dataAdapter = getListPrices();
-        ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.prices_list, R.layout.custom_drop_down);
+        ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.coingecko_prices_list, R.layout.custom_drop_down);
         //arrayAdapter.setDropDownViewResource(R.layout.custom_drop_down);
         spinner1.setAdapter(arrayAdapter);
         spinner1.setSelection(43);
@@ -189,7 +189,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         List<String> list = new ArrayList<>(49);
         Properties prop = new Properties();
         try {
-            InputStream inputStream = getApplicationContext().getResources().getAssets().open("prices");
+            InputStream inputStream = getApplicationContext().getResources().getAssets().open("coingecko_prices");
             prop.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();

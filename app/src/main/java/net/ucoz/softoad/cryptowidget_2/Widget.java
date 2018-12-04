@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -147,6 +150,7 @@ public class Widget extends AppWidgetProvider {
 
     }
 
+
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         if (am != null) am.cancel(pendingIntent);
@@ -158,6 +162,19 @@ public class Widget extends AppWidgetProvider {
     public void onEnabled(Context context) {
         super.onEnabled(context);
         System.out.println("________________________________________ON ENABLED ___________________");
+
+       /* Properties prop = new Properties();
+        try {
+            InputStream inputStream = context.getResources().getAssets().open("sert.jks");
+            inputStream.read()
+            prop.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.setProperty("javax.net.ssl.trustStore", "/path/to/web2.uconn.edu.jks");*/
+
+
         //Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
         boolean executed = sp.getBoolean("executed", false);

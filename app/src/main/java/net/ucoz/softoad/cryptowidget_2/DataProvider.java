@@ -19,7 +19,8 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
         String name = strings[0];
         String cur1 = strings[1];
         String cur2 = strings[2];
-        String strat= strings[3];
+        //String strat= strings[3];
+        String strat= "coinmarketcap";
         Strategy strategy = null;
 
         switch (strat){

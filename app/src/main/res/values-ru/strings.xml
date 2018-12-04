@@ -25,7 +25,7 @@
     <string name="notice_timeout">Время запроса истекло</string>
     <string name="currency1">1</string>
     <string name="currency2">2</string>
-    <string-array name="prices_list">
+    <string-array name="coingecko_prices_list">
         <item>aed</item>
         <item>ars</item>
         <item>aud</item>
