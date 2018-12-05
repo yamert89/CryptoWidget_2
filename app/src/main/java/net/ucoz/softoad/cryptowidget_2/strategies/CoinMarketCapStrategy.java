@@ -27,6 +27,12 @@ public class CoinMarketCapStrategy extends Strategy {
         Connection.Response response = null;
         String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=" + name + "&convert=" + cur1 + "," + cur2;
         try {
+            response = Jsoup.connect("https://pro-api.coinmarketcap.com/v1/cryptocurrency/map") //TODO
+                    .header(API_REQUIRED_HEADER, API_KEY)
+                    .ignoreContentType(true)
+                    .execute();
+
+            System.out.println(response.body());
 
             System.out.println("URL : " + url);
             response = Jsoup.connect(url)
@@ -36,6 +42,7 @@ public class CoinMarketCapStrategy extends Strategy {
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 OPR/56.0.3051.99")
                     .execute();
         }catch (IOException e) {
+
             e.printStackTrace();
             System.out.println("Повторное подключение");
             try {

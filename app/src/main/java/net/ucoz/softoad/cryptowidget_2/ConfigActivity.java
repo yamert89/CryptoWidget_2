@@ -173,6 +173,40 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         //String[] dataAdapter = getListPrices();
         STRATEGY = sp.getString("strategy", Utils.STRATEGY_COINGECKO);
 
+
+
+        spinnerStrategy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("ON CLICK ITEM");
+                System.out.println("POSITION " + position);
+
+                switch (position){
+                    case 0:
+                        STRATEGY = Utils.STRATEGY_COINGECKO;
+                        break;
+                    case 1:
+                        STRATEGY = Utils.STRATEGY_COINMARKETCAP;
+                        break;
+                }
+                SharedPreferences.Editor editor = getSharedPreferences(WIDGET_PREF, MODE_PRIVATE).edit();
+                editor.putString("strategy", STRATEGY);
+                editor.apply();
+                setNamesOfCurrencies();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        setNamesOfCurrencies();
+
+
+    }
+
+    private void setNamesOfCurrencies(){
         int prices_list = 0;
         int defaultValue_1 = 0;
         int defaultValue_2 = 0;
@@ -194,27 +228,6 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinner1.setSelection(defaultValue_1);
         spinner2.setAdapter(arrayAdapter);
         spinner2.setSelection(defaultValue_2);
-
-        spinnerStrategy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
-                    case 1:
-                        STRATEGY = Utils.STRATEGY_COINGECKO;
-                        break;
-                    case 2:
-                        STRATEGY = Utils.STRATEGY_COINMARKETCAP;
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
     }
 
 
@@ -268,7 +281,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
             editor.putString("cur1" + widgetID, spinner1.getSelectedItem().toString());
             editor.putString("cur2" + widgetID, spinner2.getSelectedItem().toString());
-            editor.putString("strategy", STRATEGY);
+
             editor.apply();
 
             System.out.println("valueTime" + valueTime);
