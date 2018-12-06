@@ -25,28 +25,31 @@ public class CoinMarketCapStrategy extends Strategy {
     public Object[] connection() {
         System.out.println("name = [" + name + "], cur1 = [" + cur1 + "], cur2 = [" + cur2 + "]");
         Connection.Response response = null;
-        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=" + name + "&convert=" + cur1 + "," + cur2;
+        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest";
         try {
-            response = Jsoup.connect("https://pro-api.coinmarketcap.com/v1/cryptocurrency/map") //TODO
+            response = Jsoup.connect(url) //TODO
                     .header(API_REQUIRED_HEADER, API_KEY)
+                    .data("symbol", name)
+                    .data("convert", cur1 + "," + cur2)
+                    .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
 
             System.out.println(response.body());
 
-            System.out.println("URL : " + url);
-            response = Jsoup.connect(url)
-                    .header(API_REQUIRED_HEADER, API_KEY)
-                    .timeout(15000)
-                    .ignoreContentType(true)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 OPR/56.0.3051.99")
-                    .execute();
+
         }catch (IOException e) {
 
             e.printStackTrace();
             System.out.println("Повторное подключение");
             try {
-                response = Jsoup.connect(url).ignoreContentType(true).execute();
+                response = Jsoup.connect(url) //TODO
+                        .header(API_REQUIRED_HEADER, API_KEY)
+                        .data("symbol", name)
+                        .data("convert", cur1 + "," + cur2)
+                        .method(Connection.Method.GET)
+                        .ignoreContentType(true)
+                        .execute();
             } catch (IOException e1) {
                 e1.printStackTrace();
                 return new Object[]{null, response.statusCode()};
