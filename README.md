@@ -15,11 +15,11 @@ public class Jsoup1 {
     private static final String API_KEY = "9453bb8b-d186-4d67-99ea-bcd4de0cbf32";
     private static final String API_REQUIRED_HEADER = "X-CMC_PRO_API_KEY";
 
-    private static JsonObject market_data;
+    private static JsonObject data;
 
-    static String name;
-    static String cur1;
-    static String cur2;
+    static String name = "BTC";
+    static String cur1 = "USD";
+    static String cur2 = "RUB";
 
     static String price1 = null;
     static String price2 = null;
@@ -49,41 +49,53 @@ public class Jsoup1 {
     }
 
     public static void connect() throws Exception{
-        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest";
+        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=" + name + "&convert=" + cur1;
+        String url2 = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=" + name + "&convert=" + cur2;
         Connection.Response response = Jsoup.connect(url) //TODO
                 .header(API_REQUIRED_HEADER, API_KEY)
-                .data("symbol", "BTC")
-                .data("convert", "USD" + "," + "RUB")
                 .method(Connection.Method.GET)
                 .ignoreContentType(true)
                 .execute();
-        System.out.println(response);
 
-        String json = response.body();
+        Connection.Response response2 = Jsoup.connect(url2) //TODO
+                .header(API_REQUIRED_HEADER, API_KEY)
+                .method(Connection.Method.GET)
+                .ignoreContentType(true)
+                .execute();
 
-        JsonElement element = new com.google.gson.JsonParser().parse(json);
 
-        JsonObject market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
-        JsonObject current_price = market_data.get("current_price").getAsJsonObject();
+        String json_cur1 = response.body();
+        String json_cur2 = response2.body();
 
-        price1 = current_price.get("btc").getAsString();
-        price2 = current_price.get("usd").getAsString();
-        change1_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_24h = market_data.get("price_change_percentage_24h_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_7d = market_data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_14d = market_data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_30d = market_data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_60d = market_data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_200d = market_data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("usd").getAsString();
-        change1_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("btc").getAsString();
-        change2_1y = market_data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("usd").getAsString();
+        JsonElement element = new com.google.gson.JsonParser().parse(json_cur1);
+        JsonObject data = element.getAsJsonObject().get("data").getAsJsonObject();
+        JsonObject name_obj1 = data.get(name).getAsJsonObject();
+        JsonObject cur1_data = name_obj1.get("quote").getAsJsonObject().get(cur1).getAsJsonObject();
+
+        JsonElement element2 = new com.google.gson.JsonParser().parse(json_cur2);
+        JsonObject data2 = element.getAsJsonObject().get("data").getAsJsonObject();
+        JsonObject name_obj2 = data.get(name).getAsJsonObject();
+        JsonObject cur2_data = name_obj1.get("quote").getAsJsonObject().get(cur1).getAsJsonObject();
+
+
+
+        price1 = cur1_data.get("price").getAsString();
+        price2 = cur2_data.get("price").getAsString();
+        change1_24h = cur1_data.get("volume_24h").getAsString();
+        change2_24h = cur2_data.get("volume_24h").getAsString();;
+        change1_7d = data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_7d = data.get("price_change_percentage_7d_in_currency").getAsJsonObject().get("usd").getAsString();
+        change1_14d = data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_14d = data.get("price_change_percentage_14d_in_currency").getAsJsonObject().get("usd").getAsString();
+        change1_30d = data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_30d = data.get("price_change_percentage_30d_in_currency").getAsJsonObject().get("usd").getAsString();
+        change1_60d = data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_60d = data.get("price_change_percentage_60d_in_currency").getAsJsonObject().get("usd").getAsString();
+        change1_200d = data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_200d = data.get("price_change_percentage_200d_in_currency").getAsJsonObject().get("usd").getAsString();
+        change1_1y = data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("btc").getAsString();
+        change2_1y = data.get("price_change_percentage_1y_in_currency").getAsJsonObject().get("usd").getAsString();
 
         String ico = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
     }
 }
-
