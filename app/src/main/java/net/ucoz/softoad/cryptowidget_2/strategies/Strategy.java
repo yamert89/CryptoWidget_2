@@ -43,7 +43,7 @@ public abstract class Strategy {
     public abstract Object[] connection(); //2nd val for return = status code
                                             // 1st val - response
 
-    public abstract Object[] getCurrencyData(JsonElement element);
+    public abstract Object[] getCurrencyData(JsonElement ... element);
 
     public abstract String getChangePrepared(String param, String cur);
 

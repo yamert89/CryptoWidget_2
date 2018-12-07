@@ -52,12 +52,12 @@ public class CoinGeckoStrategy extends Strategy {
     }
 
     @Override
-    public Object[] getCurrencyData(JsonElement element){
+    public Object[] getCurrencyData(JsonElement ... element){
 
         try {
 
 
-            market_data = element.getAsJsonObject().get("market_data").getAsJsonObject();
+            market_data = element[0].getAsJsonObject().get("market_data").getAsJsonObject();
             JsonObject current_price = market_data.get("current_price").getAsJsonObject();
 
             price1 = current_price.get(cur1).getAsString();
@@ -83,7 +83,7 @@ public class CoinGeckoStrategy extends Strategy {
             change2_200d = getChangePrepared("price_change_percentage_200d_in_currency", cur2);
             change1_1y = getChangePrepared("price_change_percentage_1y_in_currency", cur1);
             change2_1y = getChangePrepared("price_change_percentage_1y_in_currency", cur2);
-            String ico_url = element.getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
+            String ico_url = element[0].getAsJsonObject().get("image").getAsJsonObject().get("small").getAsString();
             Bitmap image = loadBitmap(ico_url);
             int counter = 2;
 
