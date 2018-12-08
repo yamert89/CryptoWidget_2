@@ -202,6 +202,8 @@ public class Widget extends AppWidgetProvider {
 
     }
 
+
+
     private boolean updateWidget(int id, Context context, boolean full,  AppWidgetManager appWidgetManager){
         try {
         //Toast.makeText(context, "UPDATE WIDGET", Toast.LENGTH_SHORT).show();
@@ -224,7 +226,8 @@ public class Widget extends AppWidgetProvider {
                 views.setTextViewText(R.id.tv_change, "24h");
 
                 int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
-                views.setInt(R.id.general, "setBackgroundColor", color);
+                //views.setInt(R.id.general, "setBackgroundColor", color); //TODO background drawable
+                //views.setInt(R.id.general, "setBackground", )
                 //System.out.println("DATA SAVE" + data.length);
 
                 saveChangeData(data, id, sp);
