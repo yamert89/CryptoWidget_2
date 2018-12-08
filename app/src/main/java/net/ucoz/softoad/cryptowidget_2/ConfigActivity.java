@@ -41,6 +41,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
     public static final String PREF_COLOR = "color";
     public static final String PREF_TIME = "time";
     public static String STRATEGY = Utils.STRATEGY_COINGECKO;
+    private Properties properties;
 
     private int widgetID = AppWidgetManager.INVALID_APPWIDGET_ID;
     private Intent resultValue;
@@ -91,6 +92,8 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "onCreate config");
+
+        properties = new Properties();
 
         // извлекаем ID конфигурируемого виджета
         Intent intent = getIntent();
@@ -149,16 +152,8 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         aSwitch.setChecked(false);
 
         input = findViewById(R.id.input);
-        input.setAdapter(new CurrenciesAdapter(this));
-        input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        setNamesOfCryptoCurrencies();
 
-                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-
-            }
-        });
 
         SharedPreferences sp = getSharedPreferences(WIDGET_PREF, MODE_PRIVATE);
         valueTime = sp.getInt(ConfigActivity.PREF_TIME, 5);
@@ -171,7 +166,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinnerStrategy = findViewById(R.id.spinnerStrategy);
 
         //String[] dataAdapter = getListPrices();
-        STRATEGY = sp.getString("strategy", Utils.STRATEGY_COINGECKO);
+        STRATEGY = sp.getString("strategy" + widgetID, Utils.STRATEGY_COINGECKO);
 
 
 
@@ -190,9 +185,10 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
                         break;
                 }
                 SharedPreferences.Editor editor = getSharedPreferences(WIDGET_PREF, MODE_PRIVATE).edit();
-                editor.putString("strategy", STRATEGY);
+                editor.putString("strategy" + widgetID, STRATEGY);
                 editor.apply();
                 setNamesOfCurrencies();
+                setNamesOfCryptoCurrencies();
             }
 
             @Override
@@ -230,6 +226,19 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinner2.setSelection(defaultValue_2);
     }
 
+    private void setNamesOfCryptoCurrencies(){
+        input.setAdapter(new CurrenciesAdapter(this, STRATEGY, properties));
+        input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+            }
+        });
+    }
+
 
     @Override
     protected void onPostResume() {
@@ -264,8 +273,19 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
     public void onClick(View v) {
 
         try {
+            String nameOfCrypt = null;
+            String val = input.getText().toString();
 
-            String nameOfCrypt = input.getText().toString();
+            switch (STRATEGY){
+                case Utils.STRATEGY_COINGECKO :
+                    nameOfCrypt = val;
+                    break;
+                case Utils.STRATEGY_COINMARKETCAP:
+                    nameOfCrypt = properties.getProperty(val);
+                    break;
+            }
+
+
 
             if (nameOfCrypt.equals("")) {
                 Toast.makeText(this, R.string.notice_name, Toast.LENGTH_LONG).show();
@@ -281,6 +301,8 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
 
             editor.putString("cur1" + widgetID, spinner1.getSelectedItem().toString());
             editor.putString("cur2" + widgetID, spinner2.getSelectedItem().toString());
+
+
 
             editor.apply();
 

@@ -62,7 +62,7 @@ public class Widget extends AppWidgetProvider {
                     cur1 = sp.getString("cur1" + id, "usd");
                     cur2 = sp.getString("cur2" + id, "btc");
 
-                    if (!getData(nameCurrency, cur1, cur2, context)) {
+                    if (!getData(nameCurrency, cur1, cur2, id, context)) {
                         disableProgress(id, context, appWidgetManager);
                         //saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                         return;
@@ -103,7 +103,7 @@ public class Widget extends AppWidgetProvider {
             cur1 = sp.getString("cur1" + mAppWidgetId, "usd");
             cur2 = sp.getString("cur2" + mAppWidgetId, "btc");
 
-            if (!getData(nameCurrency, cur1, cur2, context)) {
+            if (!getData(nameCurrency, cur1, cur2, mAppWidgetId, context)) {
                 disableProgress(mAppWidgetId, context, appWidgetManager);
                 //saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
                 return;
@@ -135,7 +135,7 @@ public class Widget extends AppWidgetProvider {
                 appWidgetIds) {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
-            if (!getData(oldData[0], oldData[1], oldData[2], context)) {
+            if (!getData(oldData[0], oldData[1], oldData[2], id, context)) {
                 disableProgress(id, context, appWidgetManager);
                 return;
             }
@@ -341,14 +341,14 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private boolean getData(String s, String cur1, String cur2, Context context){
+    private boolean getData(String s, String cur1, String cur2, int wId, Context context){
         if (!Utils.hasConnection(context)) {
             return false;
         }
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
         DataProvider provider = new DataProvider();
-        provider.execute(s, cur1, cur2, sp.getString("strategy", null));
+        provider.execute(s, cur1, cur2, sp.getString("strategy" + wId, null));
         try {
             data = provider.get();
             //if (data == null) Toast.makeText(context, R.string.notice_failed, Toast.LENGTH_SHORT).show();
@@ -371,7 +371,7 @@ public class Widget extends AppWidgetProvider {
             public void run() {
                 System.out.println("отложенная Проверка сети");
                 if (Utils.hasConnection(context)) {
-                    getData(s, cur1, cur2, context);
+                   // getData(s, cur1, cur2, context);
                     timer.cancel();
 
                 }

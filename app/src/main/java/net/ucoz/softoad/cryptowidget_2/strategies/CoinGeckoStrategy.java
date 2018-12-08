@@ -28,8 +28,6 @@ public class CoinGeckoStrategy extends Strategy {
             response = Jsoup.connect(url)
                     .header(":authority","api.coingecko.com")
                     .header("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-                    //.header("accept-encoding","zip, deflate, br")
-                    //.header("accept-language","ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
                     .header("cache-control","max-age=0")
                     .header("upgrade-insecure-requests","1")
                     .referrer("https://api.coingecko.com")

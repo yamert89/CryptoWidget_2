@@ -77,8 +77,8 @@ public class CoinMarketCapStrategy extends Strategy {
 
             change1_24h = cur1_data.get("percent_change_24h").getAsString();
             change2_24h = cur2_data.get("percent_change_24h").getAsString();;
-            change1_7d = cur1_data.get("percent_change_7d").getAsJsonObject().get(cur1).getAsString();
-            change2_7d = cur2_data.get("percent_change_7d").getAsJsonObject().get(cur2).getAsString();
+            change1_7d = cur1_data.get("percent_change_7d").getAsString();
+            change2_7d = cur2_data.get("percent_change_7d").getAsString();
             change1_14d = "?";
             change2_14d = "?";
             change1_30d = "?";

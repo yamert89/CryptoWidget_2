@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -30,11 +31,18 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
     private Context mContext;
     private List<String> mResults;
     private Set<String> listCurrencies;
+    private String inputFileName;
+    private String strategy;
+    private Properties properties;
 
 
-    public CurrenciesAdapter(Context mContext) {
+    public CurrenciesAdapter(Context mContext, String _strategy, Properties prop) {
         this.mContext = mContext;
         this.mResults = new ArrayList<>();
+        strategy = _strategy;
+        properties = prop;
+        inputFileName = strategy.equals(Utils.STRATEGY_COINGECKO) ? "coingecko_list_currencies.json"
+                : "coinmarketcap.txt";
 
     }
 
@@ -124,29 +132,39 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         Set<String> set = new HashSet<>(2000);
         InputStream inputStream = null;
         try {
-            inputStream = mContext.getResources().getAssets().open("coingecko_list_currencies.json");
+            inputStream = mContext.getResources().getAssets().open(inputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        InputStreamReader reader = null;
-        try {
-            reader = new InputStreamReader(inputStream, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        StringBuilder builder = new StringBuilder();
-        while (reader.ready()){
-            builder.append((char)reader.read());
-        }
+        switch (strategy){
+            case Utils.STRATEGY_COINGECKO:
+                InputStreamReader reader = null;
+                try {
+                    reader = new InputStreamReader(inputStream, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                StringBuilder builder = new StringBuilder();
+                while (reader.ready()){
+                    builder.append((char)reader.read());
+                }
 
-        JsonArray element = new com.google.gson.JsonParser().parse(builder.toString()).getAsJsonArray();
-        for (int i = 0; i < element.size(); i++) {
-            String s = element.get(i).getAsJsonObject().get("id").getAsString();
-            set.add(element.get(i).getAsJsonObject().get("id").getAsString());
+                JsonArray element = new com.google.gson.JsonParser().parse(builder.toString()).getAsJsonArray();
+                for (int i = 0; i < element.size(); i++) {
+                    set.add(element.get(i).getAsJsonObject().get("id").getAsString());
+                }
+
+                break;
+
+            case Utils.STRATEGY_COINMARKETCAP:
+                //properties.clear();
+                properties.load(inputStream);
+                set = properties.stringPropertyNames();
+                break;
+
         }
 
         listCurrencies = set;
-
         return set;
     }
 
