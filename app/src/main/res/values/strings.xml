@@ -12,6 +12,7 @@
     <string name="notice_internet">No internet connection available</string>
     <string name="notice_fail_conn_1">Connection timeout. Trying to reconnect ...</string>
     <string name="notice_fail_conn_2">Could not connect to the remote host. Inform the development team.</string>
+    <string name="notice_fail_get">server status: </string>
     <string name="notice_name">Enter the name of the currency!</string>
     <string name="notice_failed">Failed to retrieve data</string>
     <string name="notice_error">Unknown error</string>
@@ -112,6 +113,6 @@
     </string-array>
     <string-array name="strategy_list">
         <item>coingecko.com</item>
-        <item>coinmarketcap.com</item>
+        <item>coinmarketcap.com (beta)</item>
     </string-array>
 </resources>

@@ -9,12 +9,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +37,7 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         this.mResults = new ArrayList<>();
         strategy = _strategy;
         properties = prop;
-        inputFileName = strategy.equals(Utils.STRATEGY_COINGECKO) ? "coingecko_list_currencies.json"
+        inputFileName = strategy.equals(Utils.STRATEGY_COINGECKO) ? "coingecko.txt"
                 : "coinmarketcap.txt";
 
     }
@@ -136,33 +132,10 @@ public class CurrenciesAdapter extends BaseAdapter implements Filterable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        switch (strategy){
-            case Utils.STRATEGY_COINGECKO:
-                InputStreamReader reader = null;
-                try {
-                    reader = new InputStreamReader(inputStream, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                StringBuilder builder = new StringBuilder();
-                while (reader.ready()){
-                    builder.append((char)reader.read());
-                }
 
-                JsonArray element = new com.google.gson.JsonParser().parse(builder.toString()).getAsJsonArray();
-                for (int i = 0; i < element.size(); i++) {
-                    set.add(element.get(i).getAsJsonObject().get("id").getAsString());
-                }
-
-                break;
-
-            case Utils.STRATEGY_COINMARKETCAP:
-                //properties.clear();
-                properties.load(inputStream);
-                set = properties.stringPropertyNames();
-                break;
-
-        }
+        properties.clear();
+        properties.load(inputStream);
+        set = properties.stringPropertyNames();
 
         listCurrencies = set;
         return set;

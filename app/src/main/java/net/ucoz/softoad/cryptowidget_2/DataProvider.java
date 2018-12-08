@@ -35,8 +35,8 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
                 respResult1 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
-                    Object[] fail = new Object[18];
-                    fail[17] = st;
+                    Object[] fail = new Object[1];
+                    fail[0] = st;
                     return fail;
                 };
                 Connection.Response response = (Connection.Response) respResult1[0];
@@ -51,13 +51,13 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
                 respResult2 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
-                    Object[] fail = new Object[18];
-                    fail[17] = st;
+                    Object[] fail = new Object[1];
+                    fail[0] = st;
                     return fail;
                 };
                 if ((st = checkStatus(respResult2)) != 0){
-                    Object[] fail = new Object[18];
-                    fail[17] = st;
+                    Object[] fail = new Object[1];
+                    fail[0] = st;
                     return fail;
                 };
 

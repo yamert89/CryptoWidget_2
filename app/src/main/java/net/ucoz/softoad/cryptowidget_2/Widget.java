@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -226,7 +227,8 @@ public class Widget extends AppWidgetProvider {
                 views.setTextViewText(R.id.tv_change, "24h");
 
                 int color = sp.getInt(ConfigActivity.PREF_COLOR + id, 0);
-                //views.setInt(R.id.general, "setBackgroundColor", color); //TODO background drawable
+                if (color != 0) views.setInt(R.id.general, "setBackgroundColor", color);
+                // //TODO background drawable
                 //views.setInt(R.id.general, "setBackground", )
                 //System.out.println("DATA SAVE" + data.length);
 
@@ -354,7 +356,7 @@ public class Widget extends AppWidgetProvider {
         provider.execute(s, cur1, cur2, sp.getString("strategy" + wId, null));
         try {
             data = provider.get();
-            //if (data == null) Toast.makeText(context, R.string.notice_failed, Toast.LENGTH_SHORT).show();
+            if (data.length == 1) Toast.makeText(context, R.string.notice_fail_get + String.valueOf(data[0]), Toast.LENGTH_SHORT).show();
             if (data == null) return false;
         } catch (InterruptedException e) {
             e.printStackTrace();
