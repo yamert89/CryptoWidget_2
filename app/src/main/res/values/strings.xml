@@ -13,6 +13,7 @@
     <string name="notice_fail_conn_1">Connection timeout. Trying to reconnect ...</string>
     <string name="notice_fail_conn_2">Could not connect to the remote host. Inform the development team.</string>
     <string name="notice_fail_get">server status: </string>
+    <string name="notice_fail_load_sp">CryproWidget: Error passing custom parameters. Missing values will be assumed by default.</string>
     <string name="notice_name">Enter the name of the currency!</string>
     <string name="notice_failed">Failed to retrieve data</string>
     <string name="notice_error">Unknown error</string>

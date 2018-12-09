@@ -29,6 +29,8 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
         JsonElement element1 = null;
         JsonElement element2 = null;
 
+        if(strat == null) strat = Utils.STRATEGY_COINGECKO;
+
         switch (strat){
             case Utils.STRATEGY_COINGECKO:
                 strategy = new CoinGeckoStrategy(name, cur1, cur2);
@@ -76,6 +78,12 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
 
 
         return strategy.getCurrencyData(element1, element2);
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+        
     }
 
     private int checkStatus(Object[] respResult){

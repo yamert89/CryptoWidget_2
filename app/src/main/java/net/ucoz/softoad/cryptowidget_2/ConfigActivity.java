@@ -166,7 +166,7 @@ public class ConfigActivity extends Activity implements CompoundButton.OnChecked
         spinnerStrategy = findViewById(R.id.spinnerStrategy);
 
         //String[] dataAdapter = getListPrices();
-        STRATEGY = sp.getString("strategy" + widgetID, Utils.STRATEGY_COINGECKO);
+        STRATEGY = sp.getString("strategy" + widgetID, Utils.STRATEGY_COINGECKO); //TODO delete
 
 
 

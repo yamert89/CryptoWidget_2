@@ -353,7 +353,13 @@ public class Widget extends AppWidgetProvider {
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
         DataProvider provider = new DataProvider();
-        provider.execute(s, cur1, cur2, sp.getString("strategy" + wId, null));
+        String st = sp.getString("strategy" + wId, null);
+        if (st == null) {
+            Toast.makeText(context, R.string.notice_fail_load_sp, Toast.LENGTH_LONG);
+            st = Utils.STRATEGY_COINGECKO;
+        }
+        provider.execute(s, cur1, cur2, st);
+
         try {
             data = provider.get();
             if (data.length == 1) Toast.makeText(context, R.string.notice_fail_get + String.valueOf(data[0]), Toast.LENGTH_SHORT).show();
