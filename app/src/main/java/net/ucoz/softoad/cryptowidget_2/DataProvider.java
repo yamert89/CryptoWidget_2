@@ -11,25 +11,31 @@ import net.ucoz.softoad.cryptowidget_2.strategies.Strategy;
 
 import org.jsoup.Connection;
 
-public class DataProvider extends AsyncTask<String, Void, Object[]> {
+public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
 
     private Object[] respResult1;
     private Object[] respResult2;
     private int st;
+    private Widget widget;
+    private Object[] remoteObjects;
 
 
     @Override
-    protected Object[] doInBackground(String... strings) {
-        String name = strings[0];
-        String cur1 = strings[1];
-        String cur2 = strings[2];
-        String strat = strings[3];
+    protected Object[] doInBackground(Object... inputs) {
+        String name = (String) inputs[0];
+        String cur1 = (String) inputs[1];
+        String cur2 = (String) inputs[2];
+        String strat = (String) inputs[3];
+        widget = (Widget) inputs[4];
+        remoteObjects = (Object[]) inputs[5];
         //String strat= "coinmarketcap";
         Strategy strategy = null;
         JsonElement element1 = null;
         JsonElement element2 = null;
 
         if(strat == null) strat = Utils.STRATEGY_COINGECKO;
+
+        publishProgress(10);
 
         switch (strat){
             case Utils.STRATEGY_COINGECKO:
@@ -50,6 +56,7 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
             case Utils.STRATEGY_COINMARKETCAP:
                 strategy = new CoinMarketCapStrategy(name, cur1, cur2);
                 respResult1 = strategy.connection();
+                publishProgress(40);
                 respResult2 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
@@ -76,15 +83,26 @@ public class DataProvider extends AsyncTask<String, Void, Object[]> {
                 break;
         }
 
+        publishProgress(80);
+        Object[] res = strategy.getCurrencyData(element1, element2);
+        publishProgress(100);
 
-        return strategy.getCurrencyData(element1, element2);
+        return res;
     }
 
     @Override
-    protected void onProgressUpdate(Void... values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        
+
+        try {
+            widget.updateProgress(values[0], remoteObjects);
+            System.out.println("Update " + values[0]);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
+
 
     private int checkStatus(Object[] respResult){
         Connection.Response response = (Connection.Response) respResult[0];

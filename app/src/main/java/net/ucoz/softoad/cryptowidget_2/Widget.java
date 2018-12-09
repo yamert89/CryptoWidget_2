@@ -31,6 +31,7 @@ public class Widget extends AppWidgetProvider {
     Object[] data;
 
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
@@ -51,6 +52,7 @@ public class Widget extends AppWidgetProvider {
             String nameCurrency = "";
             String cur1 = "";
             String cur2 = "";
+            Object[] remoteObjects = null;
 
             if (intent.getAction().equals(ALL_WIDGET_UPDATE)) {
                 ComponentName thisWidget = new ComponentName(context, Widget.class);
@@ -62,8 +64,9 @@ public class Widget extends AppWidgetProvider {
                     if (nameCurrency.equals("undefined")) return;
                     cur1 = sp.getString("cur1" + id, "usd");
                     cur2 = sp.getString("cur2" + id, "btc");
+                    remoteObjects = new Object[]{id, context, appWidgetManager};
 
-                    if (!getData(nameCurrency, cur1, cur2, id, context)) {
+                    if (!getData(nameCurrency, cur1, cur2, id, context, remoteObjects)) {
                         disableProgress(id, context, appWidgetManager);
                         //saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                         return;
@@ -103,8 +106,9 @@ public class Widget extends AppWidgetProvider {
 
             cur1 = sp.getString("cur1" + mAppWidgetId, "usd");
             cur2 = sp.getString("cur2" + mAppWidgetId, "btc");
+            remoteObjects = new Object[]{mAppWidgetId, context, appWidgetManager};
 
-            if (!getData(nameCurrency, cur1, cur2, mAppWidgetId, context)) {
+            if (!getData(nameCurrency, cur1, cur2, mAppWidgetId, context, remoteObjects)) {
                 disableProgress(mAppWidgetId, context, appWidgetManager);
                 //saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
                 return;
@@ -136,7 +140,8 @@ public class Widget extends AppWidgetProvider {
                 appWidgetIds) {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
-            if (!getData(oldData[0], oldData[1], oldData[2], id, context)) {
+            Object[] remoteObjects = new Object[]{id, context, appWidgetManager};
+            if (!getData(oldData[0], oldData[1], oldData[2], id, context, remoteObjects)) {
                 disableProgress(id, context, appWidgetManager);
                 return;
             }
@@ -230,7 +235,7 @@ public class Widget extends AppWidgetProvider {
                 if (color != 0) views.setInt(R.id.general, "setBackgroundColor", color);
                 // //TODO background drawable
                 //views.setInt(R.id.general, "setBackground", )
-                //System.out.println("DATA SAVE" + data.length);
+                System.out.println("DATA SAVE" + data.length);
 
                 saveChangeData(data, id, sp);
 
@@ -238,7 +243,7 @@ public class Widget extends AppWidgetProvider {
             } else {
                 Object[] data2 = getChangeData(id, sp);
                 int idx = (int) data2[14];
-               // System.out.println("IDX_________________! : " + idx);
+                System.out.println("IDX_________________! : " + idx);
                 String header = "";
                 /*for (Object ob :
                         data2) {
@@ -272,7 +277,7 @@ public class Widget extends AppWidgetProvider {
                 }
 
 
-                //System.out.println("DATA GET  = " + data2.length);
+                System.out.println("DATA GET  = " + data2.length);
 
                 views.setTextViewText(R.id.tv_dyn_Dol, (String) data2[idx]);
                 views.setTextViewText(R.id.tv_dyn_BTC, (String) data2[++idx]);
@@ -302,6 +307,7 @@ public class Widget extends AppWidgetProvider {
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
             appWidgetManager.updateAppWidget(id, views);
+            System.out.println("Update Done");
         }catch (Exception e){
             e.printStackTrace();
             return false;
@@ -346,7 +352,7 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private boolean getData(String s, String cur1, String cur2, int wId, Context context){
+    private boolean getData(String s, String cur1, String cur2, int wId, Context context, Object[] remoteObjects){
         if (!Utils.hasConnection(context)) {
             return false;
         }
@@ -358,10 +364,14 @@ public class Widget extends AppWidgetProvider {
             Toast.makeText(context, R.string.notice_fail_load_sp, Toast.LENGTH_LONG);
             st = Utils.STRATEGY_COINGECKO;
         }
-        provider.execute(s, cur1, cur2, st);
+
+        provider.execute(s, cur1, cur2, st, this, remoteObjects);
 
         try {
+            System.out.println("BEFORE GET");
+
             data = provider.get();
+            System.out.println("AFTER GET");
             if (data.length == 1) Toast.makeText(context, R.string.notice_fail_get + String.valueOf(data[0]), Toast.LENGTH_SHORT).show();
             if (data == null) return false;
         } catch (InterruptedException e) {
@@ -373,6 +383,10 @@ public class Widget extends AppWidgetProvider {
             return false;
         }
         return true;
+    }
+
+    private void startAsync(){
+
     }
 
     private void scheduleGetData(final Context context, final String s, final String cur1, final String cur2){
@@ -428,6 +442,20 @@ public class Widget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
         manager.updateAppWidget(id, views);
+    }
+
+    public void updateProgress(Integer val, Object[] remoteObjects){
+        try {
+            int id = (int) remoteObjects[0];
+            Context context = (Context) remoteObjects[1];
+            AppWidgetManager manager = (AppWidgetManager) remoteObjects[2];
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+            String text = val == 100 ? "" : String.valueOf(val) + "%";
+            views.setTextViewText(R.id.progressTV, text);
+            manager.updateAppWidget(id, views);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     void startAlarm(Context context, int xTime) throws Exception{
