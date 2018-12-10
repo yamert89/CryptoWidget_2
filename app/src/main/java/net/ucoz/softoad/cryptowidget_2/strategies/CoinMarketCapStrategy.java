@@ -12,6 +12,9 @@ import java.io.IOException;
 
 public class CoinMarketCapStrategy extends Strategy {
     private String url;
+    private String[] strings;
+    private Bitmap icon;
+    private int counter;
 
     private final String API_KEY = "9453bb8b-d186-4d67-99ea-bcd4de0cbf32";
     private final String API_REQUIRED_HEADER = "X-CMC_PRO_API_KEY";
@@ -55,7 +58,7 @@ public class CoinMarketCapStrategy extends Strategy {
     }
 
     @Override
-    public Object[] getCurrencyData(JsonElement ... element) {
+    public void getCurrencyData(JsonElement ... element) {
         try {
 
             JsonObject data = element[0].getAsJsonObject().get("data").getAsJsonObject();
@@ -103,13 +106,16 @@ public class CoinMarketCapStrategy extends Strategy {
 
             String ico_url = ico_element.getAsJsonObject().get("data").getAsJsonObject().get(name)
                     .getAsJsonObject().get("logo").getAsString();
-            Bitmap image = loadBitmap(ico_url);
-            int counter = 2;
+            icon = loadBitmap(ico_url);
+            counter = 2;
 
 
 
-            return new Object[]{name, image, price1, price2, change1_24h, change2_24h, change1_7d, change2_7d,
-                    change1_14d, change2_14d, change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y, counter};
+            strings =  new String[]{name, price1, price2, change1_24h, change2_24h, change1_7d, change2_7d,
+                    change1_14d, change2_14d, change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y};
+
+            /*objects =  new Object[]{name, image, price1, price2, change1_24h, change2_24h, change1_7d, change2_7d,
+                    change1_14d, change2_14d, change1_30d, change2_30d, change1_60d, change2_60d, change1_200d, change2_200d, change1_1y, change2_1y, counter};*/
 
         }catch (NullPointerException e){
             e.printStackTrace();
@@ -117,7 +123,21 @@ public class CoinMarketCapStrategy extends Strategy {
             e.printStackTrace();
         }
 
-        return new Object[0];
+    }
+
+    @Override
+    public String[] getStrings() {
+        return strings;
+    }
+
+    @Override
+    public Bitmap getIcon() {
+        return icon;
+    }
+
+    @Override
+    public int getCounter() {
+        return counter;
     }
 
     @Override

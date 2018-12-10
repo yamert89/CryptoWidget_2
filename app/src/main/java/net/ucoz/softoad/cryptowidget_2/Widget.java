@@ -352,20 +352,8 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private boolean getData(String s, String cur1, String cur2, int wId, Context context, Object[] remoteObjects){
-        if (!Utils.hasConnection(context)) {
-            return false;
-        }
-        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
+    private boolean getData(){
 
-        DataProvider provider = new DataProvider();
-        String st = sp.getString("strategy" + wId, null);
-        if (st == null) {
-            Toast.makeText(context, R.string.notice_fail_load_sp, Toast.LENGTH_LONG);
-            st = Utils.STRATEGY_COINGECKO;
-        }
-
-        provider.execute(s, cur1, cur2, st, this, remoteObjects);
 
         try {
             System.out.println("BEFORE GET");
@@ -385,8 +373,21 @@ public class Widget extends AppWidgetProvider {
         return true;
     }
 
-    private void startAsync(){
+    private boolean startAsync(String s, String cur1, String cur2, int wId, Context context, Object[] remoteObjects){
+        if (!Utils.hasConnection(context)) {
+            return false;
+        }
+        SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
+        DataProvider provider = new DataProvider();
+        String st = sp.getString("strategy" + wId, null);
+        if (st == null) {
+            Toast.makeText(context, R.string.notice_fail_load_sp, Toast.LENGTH_LONG).show();
+            st = Utils.STRATEGY_COINGECKO;
+        }
+
+        provider.execute(s, cur1, cur2, st, this, remoteObjects);
+        return true;
     }
 
     private void scheduleGetData(final Context context, final String s, final String cur1, final String cur2){

@@ -34,6 +34,7 @@ public abstract class Strategy {
     String change2_200d = null;
     String change2_1y = null;
 
+
     public Strategy(String name, String cur1, String cur2) {
         this.name = name;
         this.cur1 = cur1;
@@ -43,7 +44,13 @@ public abstract class Strategy {
     public abstract Object[] connection(); //2nd val for return = status code
                                             // 1st val - response
 
-    public abstract Object[] getCurrencyData(JsonElement ... element);
+    public abstract void getCurrencyData(JsonElement ... element);
+
+    public abstract String[] getStrings();
+
+    public abstract Bitmap getIcon();
+
+    public abstract int getCounter();
 
     public abstract String getChangePrepared(String param, String cur);
 

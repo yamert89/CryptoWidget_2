@@ -1,6 +1,11 @@
 package net.ucoz.softoad.cryptowidget_2;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -10,6 +15,8 @@ import net.ucoz.softoad.cryptowidget_2.strategies.CoinMarketCapStrategy;
 import net.ucoz.softoad.cryptowidget_2.strategies.Strategy;
 
 import org.jsoup.Connection;
+
+import static net.ucoz.softoad.cryptowidget_2.Widget.ALL_WIDGET_UPDATE;
 
 public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
 
@@ -84,10 +91,26 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
         }
 
         publishProgress(80);
-        Object[] res = strategy.getCurrencyData(element1, element2);
+        strategy.getCurrencyData(element1, element2);
+        String[] strings = strategy.getStrings();
+        int counter = strategy.getCounter();
+        Bitmap icon = strategy.getIcon();
         publishProgress(100);
+        successIntent(strings, icon, counter);
 
         return res;
+    }
+
+    private void successIntent(String[] strings, Bitmap icon, int counter){
+        Context context = (Context) remoteObjects[1];
+        Intent intent = new Intent(context, Widget.class);
+        intent.setAction(ALL_WIDGET_UPDATE);
+
+        intent.putExtra("res_strings", strings);
+        intent.putExtra("res_counter", counter);
+        intent.putExtra("res_icon", icon);
+        context.sendBroadcast(intent);
+
     }
 
     @Override
