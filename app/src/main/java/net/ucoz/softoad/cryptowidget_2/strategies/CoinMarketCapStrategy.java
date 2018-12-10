@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -15,6 +16,8 @@ public class CoinMarketCapStrategy extends Strategy {
     private String[] strings;
     private Bitmap icon;
     private int counter;
+    private JsonObject cur1_data;
+    private JsonObject cur2_data;
 
     private final String API_KEY = "9453bb8b-d186-4d67-99ea-bcd4de0cbf32";
     private final String API_REQUIRED_HEADER = "X-CMC_PRO_API_KEY";
@@ -48,9 +51,12 @@ public class CoinMarketCapStrategy extends Strategy {
                         .ignoreContentType(true)
                         .execute();
 
-            } catch (IOException e1) {
+            } catch (HttpStatusException e1) {
                 e1.printStackTrace();
-                return new Object[]{null, response.statusCode()};
+                return new Object[]{e1.getStatusCode()};
+            } catch (IOException e2){
+                e2.printStackTrace();
+                return new Object[]{1};
             }
         }
 
@@ -63,11 +69,11 @@ public class CoinMarketCapStrategy extends Strategy {
 
             JsonObject data = element[0].getAsJsonObject().get("data").getAsJsonObject();
             JsonObject name_obj1 = data.get(name).getAsJsonObject();
-            JsonObject cur1_data = name_obj1.get("quote").getAsJsonObject().get(cur1).getAsJsonObject();
+            cur1_data = name_obj1.get("quote").getAsJsonObject().get(cur1).getAsJsonObject();
 
             JsonObject data2 = element[1].getAsJsonObject().get("data").getAsJsonObject();
             JsonObject name_obj2 = data2.get(name).getAsJsonObject();
-            JsonObject cur2_data = name_obj2.get("quote").getAsJsonObject().get(cur2).getAsJsonObject();
+            cur2_data = name_obj2.get("quote").getAsJsonObject().get(cur2).getAsJsonObject();
 
             price1 = cur1_data.get("price").getAsString();
             price2 = cur2_data.get("price").getAsString();
@@ -78,10 +84,10 @@ public class CoinMarketCapStrategy extends Strategy {
             price1 += "  " + cur1;
             price2 += "  " + cur2;
 
-            change1_24h = cur1_data.get("percent_change_24h").getAsString();
-            change2_24h = cur2_data.get("percent_change_24h").getAsString();;
-            change1_7d = cur1_data.get("percent_change_7d").getAsString();
-            change2_7d = cur2_data.get("percent_change_7d").getAsString();
+            change1_24h = getChangePrepared("percent_change_24h", "1");
+            change2_24h = getChangePrepared("percent_change_24h", "2");
+            change1_7d = getChangePrepared("percent_change_7d", "1");
+            change2_7d = getChangePrepared("percent_change_7d", "2");
             change1_14d = "?";
             change2_14d = "?";
             change1_30d = "?";
@@ -142,7 +148,26 @@ public class CoinMarketCapStrategy extends Strategy {
 
     @Override
     public String getChangePrepared(String param, String cur) {
-        return null;
+        JsonObject object = null;
+
+        switch (cur){
+            case "1":
+                object = cur1_data;
+                break;
+            case "2":
+                object = cur2_data;
+                break;
+        }
+        String s = null;
+        try {
+            s = object.get(param).getAsString();
+            if (s.length() > 5) s = s.substring(0, 5);
+        }catch (NullPointerException e){
+            //System.out.println("!!!!!!!!!!!!String = " + s);
+            return "?";
+        }
+        return s + "%";
+
     }
 
     private void checkNulls(String ... params){

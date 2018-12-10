@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Parcelable;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -16,9 +14,9 @@ import net.ucoz.softoad.cryptowidget_2.strategies.Strategy;
 
 import org.jsoup.Connection;
 
-import static net.ucoz.softoad.cryptowidget_2.Widget.ALL_WIDGET_UPDATE;
+import static net.ucoz.softoad.cryptowidget_2.Widget.SOME_WIDGET_RESULT;
 
-public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
+public class DataProvider extends AsyncTask<Object, Integer, Integer> {
 
     private Object[] respResult1;
     private Object[] respResult2;
@@ -28,7 +26,7 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
 
 
     @Override
-    protected Object[] doInBackground(Object... inputs) {
+    protected Integer doInBackground(Object... inputs) {
         String name = (String) inputs[0];
         String cur1 = (String) inputs[1];
         String cur2 = (String) inputs[2];
@@ -50,9 +48,7 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
                 respResult1 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
-                    Object[] fail = new Object[1];
-                    fail[0] = st;
-                    return fail;
+                    return st;
                 };
                 Connection.Response response = (Connection.Response) respResult1[0];
                 String json = response.body();
@@ -67,14 +63,10 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
                 respResult2 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
-                    Object[] fail = new Object[1];
-                    fail[0] = st;
-                    return fail;
+                    return st;
                 };
                 if ((st = checkStatus(respResult2)) != 0){
-                    Object[] fail = new Object[1];
-                    fail[0] = st;
-                    return fail;
+                    return st;
                 };
 
                 Connection.Response response1 = (Connection.Response) respResult1[0];
@@ -98,17 +90,19 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
         publishProgress(100);
         successIntent(strings, icon, counter);
 
-        return res;
+        return 0;
     }
 
     private void successIntent(String[] strings, Bitmap icon, int counter){
         Context context = (Context) remoteObjects[1];
         Intent intent = new Intent(context, Widget.class);
-        intent.setAction(ALL_WIDGET_UPDATE);
+        intent.setAction(SOME_WIDGET_RESULT);
 
         intent.putExtra("res_strings", strings);
         intent.putExtra("res_counter", counter);
         intent.putExtra("res_icon", icon);
+        intent.putExtra("res_id", (int) remoteObjects[0]);
+        intent.putExtra("res_fullUpd", (boolean) remoteObjects[3]);
         context.sendBroadcast(intent);
 
     }
@@ -130,10 +124,14 @@ public class DataProvider extends AsyncTask<Object, Integer, Object[]> {
     private int checkStatus(Object[] respResult){
         Connection.Response response = (Connection.Response) respResult[0];
         int status = (int) respResult[1];
-        if (response == null || status == 403) {
-            return status;
+        if (respResult.length < 2) {
+            return (int) respResult[0];
         }
         return 0; //success
+    }
+
+    private void sendErrorMessage(){
+        //TODO
     }
 
     private void printJson(String json){

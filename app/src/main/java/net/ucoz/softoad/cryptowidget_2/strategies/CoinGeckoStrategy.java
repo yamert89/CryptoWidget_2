@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -43,9 +44,14 @@ public class CoinGeckoStrategy extends Strategy {
             System.out.println("Повторное подключение");
             try {
                 response = Jsoup.connect(url).ignoreContentType(true).execute();
-            } catch (IOException e1) {
+            } catch (HttpStatusException e1) {
                 e1.printStackTrace();
-                return new Object[]{null, response.statusCode()};
+
+                return new Object[]{e1.getStatusCode()};
+
+            }catch (IOException e2){
+                e2.printStackTrace();
+                return new Object[]{1};
             }
         }
 

@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 
 import static android.content.Context.ALARM_SERVICE;
 import static net.ucoz.softoad.cryptowidget_2.ConfigActivity.PREF_NAME;
@@ -26,6 +25,8 @@ public class Widget extends AppWidgetProvider {
     static final String ALL_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.All_WIDGET_UPDATE";
     static final String DYNAMIC_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.DYNAMIC_WIDGET_UPDATE";
     static final String SOME_WIDGET_UPDATE = "net.ucoz.softoad.cryptowidget.SOME_WIDGET_UPDATE";
+    static final String SOME_WIDGET_RESULT = "net.ucoz.softoad.cryptowidget.SOME_WIDGET_RESULT";
+    static final String SOME_WIDGET_ERROR = "net.ucoz.softoad.cryptowidget.ERROR";
     PendingIntent pendingIntent;
     AlarmManager am;
     Object[] data;
@@ -37,15 +38,24 @@ public class Widget extends AppWidgetProvider {
         super.onReceive(context, intent);
         System.out.println("____________ON RECEIVE!!!");
         try {
-            System.out.println("ACTION______________!!!" + intent.getAction());
+            String action = intent.getAction();
+            System.out.println("ACTION______________!!!" + action);
             //System.out.println("THIS = " + this.hashCode());
             //System.out.println("CONTEXT = " + context.hashCode());
 
-            if (intent.getAction() == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
-                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
-                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_DELETED) ||
-                    intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) return;
+
+            if (action == null || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_ENABLED) ||
+                    action.equals(AppWidgetManager.ACTION_APPWIDGET_DISABLED) ||
+                    action.equals(AppWidgetManager.ACTION_APPWIDGET_DELETED) ||
+                    action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) return;
+
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+            if (action.equals(SOME_WIDGET_RESULT)){
+                Object[] id_fullUpd = getData(intent);
+                updateWidget((int) id_fullUpd[0], context, (boolean) id_fullUpd[1], appWidgetManager);
+            }
+
 
             SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
 
@@ -53,8 +63,9 @@ public class Widget extends AppWidgetProvider {
             String cur1 = "";
             String cur2 = "";
             Object[] remoteObjects = null;
+            boolean fullUpdate = false;
 
-            if (intent.getAction().equals(ALL_WIDGET_UPDATE)) {
+            if (action.equals(ALL_WIDGET_UPDATE)) {
                 ComponentName thisWidget = new ComponentName(context, Widget.class);
                 int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
                 for (int id :
@@ -64,15 +75,16 @@ public class Widget extends AppWidgetProvider {
                     if (nameCurrency.equals("undefined")) return;
                     cur1 = sp.getString("cur1" + id, "usd");
                     cur2 = sp.getString("cur2" + id, "btc");
-                    remoteObjects = new Object[]{id, context, appWidgetManager};
+                    fullUpdate = true;
+                    remoteObjects = new Object[]{id, context, appWidgetManager, fullUpdate};
 
-                    if (!getData(nameCurrency, cur1, cur2, id, context, remoteObjects)) {
+                    if (!startAsync(nameCurrency, cur1, cur2, id, context, remoteObjects)) {
                         disableProgress(id, context, appWidgetManager);
                         //saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
                         return;
                     }
                     saveIdDataForReboot(id, nameCurrency, cur1, cur2, context);
-                    updateWidget(id, context, true, appWidgetManager);
+                    //updateWidget(id, context, true, appWidgetManager);
 
                 }
                 return;
@@ -91,7 +103,7 @@ public class Widget extends AppWidgetProvider {
             nameCurrency = sp.getString(PREF_NAME + mAppWidgetId, "undefined");
             if (nameCurrency.equals("undefined")) return;
 
-            if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)) {
+            if (action.equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)) {
 
                 int time = sp.getInt(PREF_TIME, 5) * 60000;
                 startAlarm(context, time);
@@ -99,22 +111,23 @@ public class Widget extends AppWidgetProvider {
 
             }
 
-            if (intent.getAction().equals(DYNAMIC_WIDGET_UPDATE)) {
+            if (action.equals(DYNAMIC_WIDGET_UPDATE)) {
                 updateWidget(mAppWidgetId, context, false, appWidgetManager);
                 return;
             }
 
             cur1 = sp.getString("cur1" + mAppWidgetId, "usd");
             cur2 = sp.getString("cur2" + mAppWidgetId, "btc");
-            remoteObjects = new Object[]{mAppWidgetId, context, appWidgetManager};
+            fullUpdate = true;
+            remoteObjects = new Object[]{mAppWidgetId, context, appWidgetManager, fullUpdate};
 
-            if (!getData(nameCurrency, cur1, cur2, mAppWidgetId, context, remoteObjects)) {
+            if (!startAsync(nameCurrency, cur1, cur2, mAppWidgetId, context, remoteObjects)) {
                 disableProgress(mAppWidgetId, context, appWidgetManager);
                 //saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
                 return;
             }
             saveIdDataForReboot(mAppWidgetId, nameCurrency, cur1, cur2, context);
-            updateWidget(mAppWidgetId, context, true, appWidgetManager);
+            //updateWidget(mAppWidgetId, context, true, appWidgetManager);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -141,7 +154,7 @@ public class Widget extends AppWidgetProvider {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
             Object[] remoteObjects = new Object[]{id, context, appWidgetManager};
-            if (!getData(oldData[0], oldData[1], oldData[2], id, context, remoteObjects)) {
+            if (!startAsync(oldData[0], oldData[1], oldData[2], id, context, remoteObjects)) {
                 disableProgress(id, context, appWidgetManager);
                 return;
             }
@@ -352,25 +365,32 @@ public class Widget extends AppWidgetProvider {
         return null;
     }
 
-    private boolean getData(){
+    private Object[] getData(Intent intent){
 
+        Object[] id_fullUpd = null;
 
         try {
             System.out.println("BEFORE GET");
+            String[] strings = intent.getStringArrayExtra("res_strings");
+            Bitmap icon = intent.getParcelableExtra("res_icon");
+            int counter = intent.getIntExtra("res_counter", 2);
+            int id = intent.getIntExtra("res_id", 999);
+            boolean full_Upd = intent.getBooleanExtra("res_fullUpd", false);
 
-            data = provider.get();
+            id_fullUpd = new Object[]{id, full_Upd};
+
+            data = new Object[]{strings[0], icon, strings[1], strings[2], strings[3], strings[4]
+            , strings[5], strings[6], strings[7], strings[8], strings[9], strings[10], strings[11]
+            , strings[12], strings[13], strings[14], strings[15], strings[16], counter};
             System.out.println("AFTER GET");
-            if (data.length == 1) Toast.makeText(context, R.string.notice_fail_get + String.valueOf(data[0]), Toast.LENGTH_SHORT).show();
-            if (data == null) return false;
-        } catch (InterruptedException e) {
+            /*if (data.length == 1) Toast.makeText(context, R.string.notice_fail_get + String.valueOf(data[0]), Toast.LENGTH_SHORT).show();*/
+            if (data == null) return new Object[0];
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return new Object[0];
 
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return false;
         }
-        return true;
+        return id_fullUpd;
     }
 
     private boolean startAsync(String s, String cur1, String cur2, int wId, Context context, Object[] remoteObjects){
@@ -469,7 +489,7 @@ public class Widget extends AppWidgetProvider {
         else am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
 
-        //System.out.println("time " + xTime);
+        System.out.println("time " + xTime);
 
 
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent ); //TODO
