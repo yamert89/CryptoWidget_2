@@ -3,9 +3,9 @@
     <dimen name="margin">6dp</dimen>
     <dimen name="margin_element">12dp</dimen>
     <dimen name="margin_columns">24dp</dimen>
-    <dimen name="text_size">13sp</dimen>
+    <dimen name="text_size">20sp</dimen>
     <dimen name="text_size_config">23sp</dimen>
     <dimen name="text_size_config_small">18sp</dimen>
-    <dimen name="name_size">16sp</dimen>
+    <dimen name="name_size">32sp</dimen>
     <dimen name="in_size">30sp</dimen>
 </resources>

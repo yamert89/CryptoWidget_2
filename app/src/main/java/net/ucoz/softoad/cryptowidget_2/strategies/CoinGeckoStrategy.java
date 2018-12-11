@@ -25,7 +25,7 @@ public class CoinGeckoStrategy extends Strategy {
     public Object[] connection() {
         System.out.println("name = [" + name + "], cur1 = [" + cur1 + "], cur2 = [" + cur2 + "]");
         Connection.Response response = null;
-        String url = "https://api.coingecko.com/api/v3/coins/" + name + "?localization=ru";
+        String url = "https://api.coingecko.com/api/v3/coins/" + name;
         try {
 
             System.out.println("URL : " + url);

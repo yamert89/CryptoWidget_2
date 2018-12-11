@@ -60,6 +60,8 @@ public class Widget extends AppWidgetProvider {
             if(action.equals(SOME_WIDGET_ERROR)){
                 RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
                 views.setTextViewText(R.id.errorStatus, "Server status: " + String.valueOf(intent.getIntExtra("err_status", 403)));
+                views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
+                views.setTextViewText(R.id.progressTV, "");
                 appWidgetManager.updateAppWidget(intent.getIntExtra("err_id", 0), views);
                 return;
             }

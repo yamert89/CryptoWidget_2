@@ -26,7 +26,7 @@
         android:layout_toRightOf="@+id/ico"
         android:layout_marginBottom="@dimen/margin"
         android:layout_marginLeft="4dp"
-        android:text="name"
+        android:text=""
         android:textColor="@color/color_name"
         android:textSize="@dimen/name_size"/>
     <TextView
@@ -37,6 +37,7 @@
         android:layout_marginBottom="@dimen/margin"
         android:layout_marginRight="@dimen/margin_element"
         android:textColor="@color/color_def"
+        android:textSize="@dimen/text_size"
         android:text="@string/t_price"/>
 
     <TextView
@@ -47,7 +48,7 @@
         android:layout_marginLeft="@dimen/margin_columns"
         android:layout_toLeftOf="@+id/button"
         android:textColor="@color/color_def"
-
+        android:textSize="@dimen/text_size"
         android:text="@string/t_change"/>
 
     <Button
@@ -57,7 +58,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginLeft="@dimen/margin_element"
         android:text="@string/t_update"
-        android:textSize="@dimen/text_size"
+        android:textSize="13sp"
         android:textColor="@color/color_btn"
 
 
@@ -133,6 +134,8 @@
         android:layout_height="match_parent"
         android:text=""
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
         android:textSize="35sp"
+        android:textStyle="bold"
         android:textColor="#ff0000"/>
 </RelativeLayout>

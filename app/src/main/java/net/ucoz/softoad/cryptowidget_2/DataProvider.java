@@ -126,8 +126,6 @@ public class DataProvider extends AsyncTask<Object, Integer, Integer> {
 
 
     private int checkStatus(Object[] respResult){
-        Connection.Response response = (Connection.Response) respResult[0];
-        int status = (int) respResult[1];
         if (respResult.length < 2) {
             return (int) respResult[0];
         }
