@@ -54,7 +54,17 @@ public class Widget extends AppWidgetProvider {
             if (action.equals(SOME_WIDGET_RESULT)){
                 Object[] id_fullUpd = getData(intent);
                 updateWidget((int) id_fullUpd[0], context, (boolean) id_fullUpd[1], appWidgetManager);
+                return;
             }
+
+            if(action.equals(SOME_WIDGET_ERROR)){
+                RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+                views.setTextViewText(R.id.errorStatus, "Server status: " + String.valueOf(intent.getIntExtra("err_status", 403)));
+                appWidgetManager.updateAppWidget(intent.getIntExtra("err_id", 0), views);
+                return;
+            }
+
+
 
 
             SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
@@ -492,7 +502,7 @@ public class Widget extends AppWidgetProvider {
         System.out.println("time " + xTime);
 
 
-        am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent ); //TODO
+        am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 60000, xTime, pendingIntent );
     }
 
 

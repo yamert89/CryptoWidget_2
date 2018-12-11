@@ -14,6 +14,7 @@ import net.ucoz.softoad.cryptowidget_2.strategies.Strategy;
 
 import org.jsoup.Connection;
 
+import static net.ucoz.softoad.cryptowidget_2.Widget.SOME_WIDGET_ERROR;
 import static net.ucoz.softoad.cryptowidget_2.Widget.SOME_WIDGET_RESULT;
 
 public class DataProvider extends AsyncTask<Object, Integer, Integer> {
@@ -48,6 +49,7 @@ public class DataProvider extends AsyncTask<Object, Integer, Integer> {
                 respResult1 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
+                    sendErrorMessage(st);
                     return st;
                 };
                 Connection.Response response = (Connection.Response) respResult1[0];
@@ -63,9 +65,11 @@ public class DataProvider extends AsyncTask<Object, Integer, Integer> {
                 respResult2 = strategy.connection();
 
                 if ((st = checkStatus(respResult1)) != 0){
-                    return st;
+                    sendErrorMessage(st);
+
                 };
                 if ((st = checkStatus(respResult2)) != 0){
+                    sendErrorMessage(st);
                     return st;
                 };
 
@@ -130,8 +134,13 @@ public class DataProvider extends AsyncTask<Object, Integer, Integer> {
         return 0; //success
     }
 
-    private void sendErrorMessage(){
-        //TODO
+    private void sendErrorMessage(int statusCode){
+        Context context = (Context) remoteObjects[1];
+        Intent intent = new Intent(context, Widget.class);
+        intent.setAction(SOME_WIDGET_ERROR);
+        intent.putExtra("err_status", statusCode);
+        intent.putExtra("err_id", (int) remoteObjects[0]);
+        context.sendBroadcast(intent);
     }
 
     private void printJson(String json){

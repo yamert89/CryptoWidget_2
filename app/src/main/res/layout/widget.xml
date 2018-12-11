@@ -127,4 +127,12 @@
         android:textColor="@color/color_dyn"
         android:textSize="@dimen/text_size"
         android:minWidth="25dp"/>
+    <TextView
+        android:id="@+id/errorStatus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text=""
+        android:layout_marginLeft="10dp"
+        android:textSize="35sp"
+        android:textColor="#ff0000"/>
 </RelativeLayout>
