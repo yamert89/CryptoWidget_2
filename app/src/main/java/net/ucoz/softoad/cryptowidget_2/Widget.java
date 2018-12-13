@@ -165,7 +165,7 @@ public class Widget extends AppWidgetProvider {
                 appWidgetIds) {
             String[] oldData = getIdDataForReboot(id, context);
             if (oldData == null) return;
-            Object[] remoteObjects = new Object[]{id, context, appWidgetManager};
+            Object[] remoteObjects = new Object[]{id, context, appWidgetManager, true};
             if (!startAsync(oldData[0], oldData[1], oldData[2], id, context, remoteObjects)) {
                 disableProgress(id, context, appWidgetManager);
                 return;
