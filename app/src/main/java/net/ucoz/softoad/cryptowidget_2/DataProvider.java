@@ -42,57 +42,71 @@ public class DataProvider extends AsyncTask<Object, Integer, Integer> {
         if(strat == null) strat = Utils.STRATEGY_COINGECKO;
 
         publishProgress(10);
+        Connection.Response resp = null;
 
-        switch (strat){
-            case Utils.STRATEGY_COINGECKO:
-                strategy = new CoinGeckoStrategy(name, cur1, cur2);
-                respResult1 = strategy.connection();
+        try {
 
-                if ((st = checkStatus(respResult1)) != 0){
-                    sendErrorMessage(st);
-                    return st;
-                };
-                Connection.Response response = (Connection.Response) respResult1[0];
-                String json = response.body();
+            switch (strat) {
+                case Utils.STRATEGY_COINGECKO:
+                    strategy = new CoinGeckoStrategy(name, cur1, cur2);
+                    respResult1 = strategy.connection();
 
-                element1 = new JsonParser().parse(json);
-                break;
+                    if ((st = checkStatus(respResult1)) != 0) {
+                        sendErrorMessage(st);
+                        return st;
+                    }
+                    ;
+                    Connection.Response response = (Connection.Response) respResult1[0];
+                    resp = response;
+                    String json = response.body();
 
-            case Utils.STRATEGY_COINMARKETCAP:
-                strategy = new CoinMarketCapStrategy(name, cur1, cur2);
-                respResult1 = strategy.connection();
-                publishProgress(40);
-                respResult2 = strategy.connection();
+                    element1 = new JsonParser().parse(json);
+                    break;
 
-                if ((st = checkStatus(respResult1)) != 0){
-                    sendErrorMessage(st);
+                case Utils.STRATEGY_COINMARKETCAP:
+                    strategy = new CoinMarketCapStrategy(name, cur1, cur2);
+                    respResult1 = strategy.connection();
+                    publishProgress(40);
+                    respResult2 = strategy.connection();
 
-                };
-                if ((st = checkStatus(respResult2)) != 0){
-                    sendErrorMessage(st);
-                    return st;
-                };
+                    if ((st = checkStatus(respResult1)) != 0) {
+                        sendErrorMessage(st);
 
-                Connection.Response response1 = (Connection.Response) respResult1[0];
-                Connection.Response response2 = (Connection.Response) respResult2[0];
+                    }
+                    ;
+                    if ((st = checkStatus(respResult2)) != 0) {
+                        sendErrorMessage(st);
+                        return st;
+                    }
+                    ;
 
-                String json_cur1 = response1.body();
-                String json_cur2 = response2.body();
+                    Connection.Response response1 = (Connection.Response) respResult1[0];
+                    resp = response1;
+                    Connection.Response response2 = (Connection.Response) respResult2[0];
+                    resp = response2;
 
-                element1 = new com.google.gson.JsonParser().parse(json_cur1);
-                element2 = new com.google.gson.JsonParser().parse(json_cur2);
+                    String json_cur1 = response1.body();
+                    String json_cur2 = response2.body();
+
+                    element1 = new com.google.gson.JsonParser().parse(json_cur1);
+                    element2 = new com.google.gson.JsonParser().parse(json_cur2);
 
 
-                break;
+                    break;
+            }
+
+            publishProgress(80);
+            strategy.getCurrencyData(element1, element2);
+            String[] strings = strategy.getStrings();
+            int counter = strategy.getCounter();
+            Bitmap icon = strategy.getIcon();
+            publishProgress(100);
+            successIntent(strings, icon, counter);
+        }catch (Exception e){
+            e.printStackTrace();
+            if (resp != null) sendErrorMessage(resp.statusCode());
+            return 418;
         }
-
-        publishProgress(80);
-        strategy.getCurrencyData(element1, element2);
-        String[] strings = strategy.getStrings();
-        int counter = strategy.getCounter();
-        Bitmap icon = strategy.getIcon();
-        publishProgress(100);
-        successIntent(strings, icon, counter);
 
         return 0;
     }

@@ -59,7 +59,7 @@ public class Widget extends AppWidgetProvider {
 
             if(action.equals(SOME_WIDGET_ERROR)){
                 RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-                views.setTextViewText(R.id.errorStatus, "Server status: " + String.valueOf(intent.getIntExtra("err_status", 403)));
+                views.setTextViewText(R.id.errorStatus, "Server status: " + String.valueOf(intent.getIntExtra("err_status", 418)));
                 views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
                 views.setTextViewText(R.id.progressTV, "");
                 appWidgetManager.updateAppWidget(intent.getIntExtra("err_id", 0), views);
@@ -191,30 +191,11 @@ public class Widget extends AppWidgetProvider {
         super.onEnabled(context);
         System.out.println("________________________________________ON ENABLED ___________________");
 
-       /* Properties prop = new Properties();
-        try {
-            InputStream inputStream = context.getResources().getAssets().open("sert.jks");
-            inputStream.read()
-            prop.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.setProperty("javax.net.ssl.trustStore", "/path/to/web2.uconn.edu.jks");*/
-
-
-        //Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
+               //Toast.makeText(context, "onEnabled", Toast.LENGTH_SHORT).show();
         SharedPreferences sp = context.getSharedPreferences(ConfigActivity.WIDGET_PREF, Context.MODE_PRIVATE);
         boolean executed = sp.getBoolean("executed", false);
         if (!executed) return;
         sp.edit().putBoolean("reload", true).apply();
-
-
-
-
-
-
-
     }
 
     @Override
@@ -331,6 +312,7 @@ public class Widget extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.tv_dyn_BTC, pIntent);
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
+            views.setTextViewText(R.id.errorStatus, "");
             appWidgetManager.updateAppWidget(id, views);
             System.out.println("Update Done");
         }catch (Exception e){

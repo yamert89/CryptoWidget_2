@@ -56,7 +56,8 @@ public class CoinMarketCapStrategy extends Strategy {
                 return new Object[]{e1.getStatusCode()};
             } catch (IOException e2){
                 e2.printStackTrace();
-                return new Object[]{1};
+                if (response != null) return new Object[]{response.statusCode()};
+                return new Object[]{403};
             }
         }
 

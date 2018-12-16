@@ -114,6 +114,6 @@
     </string-array>
     <string-array name="strategy_list">
         <item>coingecko.com</item>
-        <item>coinmarketcap.com (beta)</item>
+        <item>coinmarketcap.com</item>
     </string-array>
 </resources>
